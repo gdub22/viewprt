@@ -1,3 +1,4 @@
-global.document = require('jsdom').jsdom('<body></body>')
-global.window = document.defaultView
+const { JSDOM } = require('jsdom')
+global.window = (new JSDOM()).window
+global.document = window.document
 global.Element = window.Element
