@@ -62,13 +62,13 @@
       var blue = '#42A5F5'
       var green = '#66BB6A'
 
-      function onBottom (element) {
+      function onBottom (element, viewportState) {
         element.style.borderColor = green
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached bottom')
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached bottom', viewportState)
       }
-      function onTop (element) {
+      function onTop (element, viewportState) {
         element.style.borderColor = blue
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached top')
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached top', viewportState)
       }
 
       // Observe body position
@@ -85,13 +85,13 @@
       })
 
       var elementObserver = ElementObserver(document.getElementById('block1'), {
-        onEnter: function (element) {
+        onEnter: function (element, viewportState) {
           element.style.backgroundColor = green
-          console.log('Entered viewport')
+          console.log('Entered viewport', viewportState)
         },
-        onExit: function (element) {
+        onExit: function (element, viewportState) {
           element.style.backgroundColor = blue
-          console.log('Exited viewport')
+          console.log('Exited viewport', viewportState)
         }
       })
     </script>

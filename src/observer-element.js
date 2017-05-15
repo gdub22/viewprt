@@ -36,11 +36,11 @@ ElementObserver.prototype.check = function (viewportState) {
     this.destroy()
   } else if (onEnter && !_didEnter && isElementInViewport(element, offset, viewportState)) {
     this._didEnter = true
-    onEnter.call(this, element)
+    onEnter.call(this, element, viewportState)
     once && this.destroy()
   } else if (onExit && _didEnter && !isElementInViewport(element, offset, viewportState)) {
     this._didEnter = false
-    onExit.call(this, element)
+    onExit.call(this, element, viewportState)
     once && this.destroy()
   }
 }

@@ -22,10 +22,10 @@ PositionObserver.prototype.check = function (viewportState) {
   const atBottom = scrollHeight > h && h + y + offset >= scrollHeight
 
   if (onBottom && !_wasBottom && atBottom) {
-    onBottom.call(this, container)
+    onBottom.call(this, container, viewportState)
     once && this.destroy()
   } else if (onTop && !_wasTop && atTop) {
-    onTop.call(this, container)
+    onTop.call(this, container, viewportState)
     once && this.destroy()
   }
 
