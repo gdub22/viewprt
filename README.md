@@ -1,6 +1,6 @@
 # viewprt [![Build Status](https://travis-ci.org/gdub22/viewprt.svg)](https://travis-ci.org/gdub22/viewprt)
 
-A tiny, high performance viewport position & intersection obsevation tool.  You can watch when elements enter & exit the viewport, or when the viewport itself is at the bottom or top.  Use this as a building block for things such as lazy loaders, infinite scrollers, etc.
+A tiny, high performance viewport position & intersection observation tool.  You can watch when elements enter & exit the viewport, or when the viewport itself is at the bottom or top.  Use this as a building block for things such as lazy loaders, infinite scrollers, etc.
 
 #### [Demo](https://rawgit.com/gdub22/viewprt/master/demos/index.html)  
 #### [Dist](https://unpkg.com/viewprt/dist/)
