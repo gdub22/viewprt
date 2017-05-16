@@ -21,21 +21,21 @@ const element = document.getElementById('element')
 // Observe when an element enters and exits the viewport:
 const elementObserver = ElementObserver(element, {
   // options (defaults)
-  container: document.body, // the viewport container element
-  offset: 0,                // offset from the edge of the viewport in pixels
-  once: false,              // if true, observer is detroyed after first callback is triggered
-  onEnter (element) {},     // callback when the element enters the viewport
-  onExit (element) {}       // callback when the element exits the viewport
+  container: document.body,            // the viewport container element
+  offset: 0,                           // offset from the edge of the viewport in pixels
+  once: false,                         // if true, observer is detroyed after first callback is triggered
+  onEnter (element, viewportState) {}, // callback when the element enters the viewport
+  onExit (element, viewportState) {}   // callback when the element exits the viewport
 })
 
 // Observe when the viewport reaches its bounds:
 const positionObserver = PositionObserver({
   // options (defaults)
-  container: document.body, // the viewport container element
-  offset: 0,                // offset from the edge of the viewport in pixels
-  once: false,              // if true, observer is detroyed after first callback is triggered
-  onBottom (container) {},  // callback when the viewport reaches the bottom
-  onTop (container) {}      // callback when the viewport reaches the top
+  container: document.body,               // the viewport container element
+  offset: 0,                              // offset from the edge of the viewport in pixels
+  once: false,                            // if true, observer is detroyed after first callback is triggered
+  onBottom (container, viewportState) {}, // callback when the viewport reaches the bottom
+  onTop (container, viewportState) {}     // callback when the viewport reaches the top
 })
 
 // Stop observing:

@@ -51,19 +51,19 @@ Viewport.prototype = {
     }
   },
   getState () {
-    const { element } = this
-    let w, h, y
+    const { element, lastY } = this
+    let width, height, y
     if (element === window) {
-      w = element.innerWidth
-      h = element.innerHeight
+      width = element.innerWidth
+      height = element.innerHeight
       y = element.pageYOffset
     } else {
-      w = element.offsetWidth
-      h = element.offsetHeight
+      width = element.offsetWidth
+      height = element.offsetHeight
       y = element.scrollTop
     }
-    const yDirection = this.lastY < y ? 'down' : 'up'
-    return { w, h, y, yDirection }
+    const yDirection = lastY < y ? 'down' : 'up'
+    return { width, height, y, yDirection }
   },
   destroy () {
     const { element, handler, mutationObserver } = this
