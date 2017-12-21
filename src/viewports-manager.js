@@ -6,7 +6,7 @@ import Viewport from './viewport'
  */
 const viewports = []
 
-export function addViewportObserver (observer) {
+export function addViewportObserver(observer) {
   const container = observer.container
   const index = getViewportIndexForContainer(container)
   let viewport
@@ -22,7 +22,7 @@ export function addViewportObserver (observer) {
   return viewport
 }
 
-export function removeViewportObserver (observer) {
+export function removeViewportObserver(observer) {
   const index = getViewportIndexForContainer(observer.container)
   const viewport = viewports[index]
 
@@ -35,8 +35,8 @@ export function removeViewportObserver (observer) {
   }
 }
 
-function getViewportIndexForContainer (container) {
-  for (let i = viewports.length; i--;) {
+function getViewportIndexForContainer(container) {
+  for (let i = viewports.length; i--; ) {
     if (viewports[i].container === container) {
       return i
     }

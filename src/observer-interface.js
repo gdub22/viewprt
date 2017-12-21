@@ -4,7 +4,7 @@ import { addViewportObserver, removeViewportObserver } from './viewports-manager
  * @interface Observer
  * Each type of observer implements these options/methods
  */
-export function Observer (opts) {
+export function Observer(opts) {
   this.offset = ~~opts.offset || 0
   this.container = opts.container || document.body
   this.once = Boolean(opts.once)
@@ -12,15 +12,15 @@ export function Observer (opts) {
 }
 
 Observer.prototype = {
-  activate () {
+  activate() {
     return addViewportObserver(this)
   },
-  destroy () {
+  destroy() {
     removeViewportObserver(this)
   }
 }
 
-export function ObserverInterface (Subclass) {
+export function ObserverInterface(Subclass) {
   Subclass.prototype = Object.create(Observer.prototype)
   Subclass.prototype.constructor = Subclass
   return Subclass

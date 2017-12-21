@@ -1,19 +1,21 @@
 import { Observer, ObserverInterface } from './observer-interface'
 
-function isElementInViewport (element, offset, viewportState) {
+function isElementInViewport(element, offset, viewportState) {
   const rect = element.getBoundingClientRect()
-  return !!(rect.width && rect.height) &&
-         rect.top < viewportState.height + offset &&
-         rect.bottom > 0 - offset &&
-         rect.left < viewportState.width + offset &&
-         rect.right > 0 - offset
+  return (
+    !!(rect.width && rect.height) &&
+    rect.top < viewportState.height + offset &&
+    rect.bottom > 0 - offset &&
+    rect.left < viewportState.width + offset &&
+    rect.right > 0 - offset
+  )
 }
 
-function isElementInDOM (element) {
+function isElementInDOM(element) {
   return element && element.parentNode
 }
 
-const ElementObserver = ObserverInterface(function ElementObserver (element, opts = {}) {
+const ElementObserver = ObserverInterface(function ElementObserver(element, opts = {}) {
   if (!(this instanceof ElementObserver)) {
     return new ElementObserver(...arguments)
   }
@@ -29,7 +31,7 @@ const ElementObserver = ObserverInterface(function ElementObserver (element, opt
   }
 })
 
-ElementObserver.prototype.check = function (viewportState) {
+ElementObserver.prototype.check = function(viewportState) {
   const { onEnter, onExit, element, offset, once, _didEnter } = this
 
   if (!isElementInDOM(element)) {

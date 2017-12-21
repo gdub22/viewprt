@@ -1,8 +1,8 @@
 const assert = require('assert')
 const rewire = require('rewire')
 
-// User rewire to access private `viewports` array to get/reset state for tests
-const viewprt = rewire('../dist/viewprt.cjs.js')
+// Using rewire to access private `viewports` array to get/reset state for tests
+const viewprt = rewire('../dist/viewprt.js')
 const _viewports = viewprt.__get__('viewports')
 const getViewports = () => _viewports.slice()
 const resetViewports = () => (_viewports.length = 0)
@@ -13,7 +13,9 @@ const { PositionObserver, ElementObserver } = viewprt
 let bodyScrollHeight = 0
 Object.defineProperty(document.body, 'scrollHeight', {
   get: () => bodyScrollHeight,
-  set: (v) => { bodyScrollHeight = v }
+  set: v => {
+    bodyScrollHeight = v
+  }
 })
 
 describe('viewprt', () => {
@@ -67,7 +69,7 @@ describe('viewprt', () => {
       observer = ElementObserver()
       assert.equal(observer.container, document.body)
 
-      let container = document.createElement('div')
+      const container = document.createElement('div')
       observer = PositionObserver({ container })
       assert.equal(observer.container, container)
       observer = ElementObserver(null, { container })
@@ -117,7 +119,7 @@ describe('viewprt', () => {
       assert.equal(getViewports()[0].observers.length, 2)
       assert.equal(getViewports()[0].observers[1], observer)
 
-      let container = document.createElement('div')
+      const container = document.createElement('div')
       observer = PositionObserver({ container })
       assert.equal(getViewports().length, 2)
       assert.equal(getViewports()[1].observers.length, 1)
@@ -142,7 +144,7 @@ describe('viewprt', () => {
     })
 
     it('can (re)activate', () => {
-      let observer = PositionObserver()
+      const observer = PositionObserver()
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
 
@@ -158,7 +160,7 @@ describe('viewprt', () => {
     })
 
     it('can destroy', () => {
-      let observer = PositionObserver()
+      const observer = PositionObserver()
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
       observer.destroy()
@@ -169,19 +171,19 @@ describe('viewprt', () => {
       assert.ok(observer) // still an instance, just not checked
     })
 
-    it('triggers maximized but not top/bottom callbacks when content and container are same size', (done) => {
+    it('triggers maximized but not top/bottom callbacks when content and container are same size', done => {
       window.innerHeight = 500
       document.body.scrollHeight = 500
 
-      let observer = PositionObserver({
+      const observer = PositionObserver({
         once: true,
-        onTop () {
+        onTop() {
           assert(0)
         },
-        onBottom () {
+        onBottom() {
           assert(0)
         },
-        onMaximized () {
+        onMaximized() {
           assert(1)
           done()
         }
@@ -192,13 +194,13 @@ describe('viewprt', () => {
       assert.equal(getViewports()[0].observers[0], observer)
     })
 
-    it('triggers bottom callback if created while at bottom', (done) => {
+    it('triggers bottom callback if created while at bottom', done => {
       window.pageYOffset = 300
       window.innerHeight = 500
       document.body.scrollHeight = 800
 
       PositionObserver({
-        onBottom () {
+        onBottom() {
           assert(1)
           done()
         }
@@ -216,16 +218,16 @@ describe('viewprt', () => {
     })
 
     it('auto activates (if element exists and in DOM)', () => {
-      let div = document.createElement('div')
+      const div = document.createElement('div')
       document.body.appendChild(div)
-      let observer = ElementObserver(div)
+      const observer = ElementObserver(div)
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
       assert.equal(getViewports()[0].observers[0], observer)
     })
 
     it('triggers onEnter if in view on creation', () => {
-      let div = document.createElement('div')
+      const div = document.createElement('div')
       div.getBoundingClientRect = () => ({
         top: 10,
         left: 10,
@@ -236,8 +238,8 @@ describe('viewprt', () => {
       })
 
       document.body.appendChild(div)
-      let observer = ElementObserver(div, {
-        onEnter () {
+      const observer = ElementObserver(div, {
+        onEnter() {
           assert(1)
         }
       })
@@ -248,7 +250,7 @@ describe('viewprt', () => {
     })
 
     it('respects once option', () => {
-      let div = document.createElement('div')
+      const div = document.createElement('div')
       div.getBoundingClientRect = () => ({
         top: 10,
         left: 10,
@@ -261,7 +263,7 @@ describe('viewprt', () => {
       document.body.appendChild(div)
       ElementObserver(div, {
         once: true,
-        onEnter () {
+        onEnter() {
           assert(1)
         }
       })
@@ -270,7 +272,7 @@ describe('viewprt', () => {
     })
 
     it('can (re)activate', () => {
-      let observer = ElementObserver()
+      const observer = ElementObserver()
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
 
@@ -286,9 +288,9 @@ describe('viewprt', () => {
     })
 
     it('auto destroys if no longer DOM', () => {
-      let div = document.createElement('div')
+      const div = document.createElement('div')
       document.body.appendChild(div)
-      let observer = ElementObserver(div)
+      const observer = ElementObserver(div)
 
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
@@ -300,8 +302,8 @@ describe('viewprt', () => {
     })
 
     it('does not auto-destroy if not initiallly in DOM, only when checked', () => {
-      let div = document.createElement('div')
-      let observer = ElementObserver(div)
+      const div = document.createElement('div')
+      const observer = ElementObserver(div)
 
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
@@ -312,9 +314,9 @@ describe('viewprt', () => {
     })
 
     it('can destroy', () => {
-      let div = document.createElement('div')
+      const div = document.createElement('div')
       document.body.appendChild(div)
-      let observer = ElementObserver(div)
+      const observer = ElementObserver(div)
       assert.equal(getViewports().length, 1)
       assert.equal(getViewports()[0].observers.length, 1)
 

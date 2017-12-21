@@ -1,6 +1,6 @@
 import { Observer, ObserverInterface } from './observer-interface'
 
-const PositionObserver = ObserverInterface(function PositionObserver (opts = {}) {
+const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) {
   if (!(this instanceof PositionObserver)) {
     return new PositionObserver(...arguments)
   }
@@ -15,7 +15,7 @@ const PositionObserver = ObserverInterface(function PositionObserver (opts = {})
   this.check(viewport.getState())
 })
 
-PositionObserver.prototype.check = function (viewportState) {
+PositionObserver.prototype.check = function(viewportState) {
   const { onBottom, onTop, onMaximized, _wasTop, _wasBottom, container, offset, once } = this
   const { scrollHeight } = container
   const { height, y } = viewportState

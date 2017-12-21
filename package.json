@@ -1,15 +1,15 @@
 {
   "name": "viewprt",
   "version": "2.1.0",
-  "description": "tiny, high performance viewport position & intersection observer",
+  "description": "Tiny, high performance viewport position & intersection observer",
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
+  "source": "src/index.js",
   "main": "dist/viewprt.js",
   "module": "dist/viewprt.es.js",
-  "jsnext:main": "dist/viewprt.es.js",
+  "browser": "dist/viewprt.umd.js",
   "files": [
-    "dist/viewprt.js",
-    "dist/viewprt.es.js"
+    "dist"
   ],
   "keywords": [
     "viewport",
@@ -25,35 +25,21 @@
     "url": "git+https://github.com/gpoitch/viewprt.git"
   },
   "scripts": {
-    "dev": "rollup --config --watch",
-    "build": "rollup --config",
-    "lint": "eslint src test --fix",
-    "test:js": "yarn build && mocha --require test/helpers/env.js",
-    "test": "yarn lint && yarn test:js",
-    "prepublish": "yarn build",
+    "build": "microbundle",
+    "build-dev": "microbundle --compress false",
+    "dev": "microbundle watch",
+    "test": "npm run clean && npm run format && npm run lint && npm run build-dev && npm run test:js",
+    "format": "flt format",
+    "lint": "flt lint",
+    "test:js": "flt test **/*.test.js --require test/helpers/env.js",
+    "prepublish": "npm run build",
     "clean": "rm -rf dist",
     "demo": "open demos/index.html"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.1",
-    "eslint": "^3.19.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^4.2.2",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "jsdom": "^10.1.0",
-    "mocha": "^3.4.1",
-    "rewire": "^2.5.2",
-    "rollup": "^0.41.6",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-watch": "^3.2.2"
-  },
-  "eslintConfig": {
-    "extends": "standard",
-    "env": {
-      "browser": true,
-      "mocha": true
-    }
+    "flt": "^0.2.2",
+    "jsdom": "^11.6.1",
+    "microbundle": "^0.4.3",
+    "rewire": "^3.0.2"
   }
 }
