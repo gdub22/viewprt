@@ -9,12 +9,19 @@ const resetViewports = () => (_viewports.length = 0)
 
 const { PositionObserver, ElementObserver } = viewprt
 
-// jsdom won't let you get/set document.body.scrollHeight directly
-let bodyScrollHeight = 0
+// jsdom won't let you get/set document.body.scrollHeight/scrollWidth directly
+let bodyScrollHeight, bodyScrollWidth
+bodyScrollHeight = bodyScrollWidth = 0
 Object.defineProperty(document.body, 'scrollHeight', {
   get: () => bodyScrollHeight,
   set: v => {
     bodyScrollHeight = v
+  }
+})
+Object.defineProperty(document.body, 'scrollWidth', {
+  get: () => bodyScrollWidth,
+  set: v => {
+    bodyScrollWidth = v
   }
 })
 
@@ -23,6 +30,7 @@ describe('viewprt', () => {
     window.pageYOffset = 0
     window.innerWidth = 1024
     window.innerHeight = 768
+    document.body.scrollWidth = 1024
     document.body.scrollHeight = 768
   })
 
@@ -171,9 +179,9 @@ describe('viewprt', () => {
       assert.ok(observer) // still an instance, just not checked
     })
 
-    it('triggers maximized but not top/bottom callbacks when content and container are same size', done => {
-      window.innerHeight = 500
-      document.body.scrollHeight = 500
+    it('triggers maximized but not top/bottom/left/right callbacks when content and container are same size', done => {
+      window.innerHeight = window.innerWidth = 500
+      document.body.scrollHeight = document.body.scrollWidth = 500
 
       const observer = PositionObserver({
         once: true,
@@ -181,6 +189,12 @@ describe('viewprt', () => {
           assert(0)
         },
         onBottom() {
+          assert(0)
+        },
+        onLeft() {
+          assert(0)
+        },
+        onRight() {
           assert(0)
         },
         onMaximized() {
@@ -201,6 +215,19 @@ describe('viewprt', () => {
 
       PositionObserver({
         onBottom() {
+          assert(1)
+          done()
+        }
+      })
+    })
+
+    it('triggers right callback if created while at right', done => {
+      window.pageXOffset = 300
+      window.innerWidth = 500
+      document.body.scrollWidth = 800
+
+      PositionObserver({
+        onRight() {
           assert(1)
           done()
         }
@@ -250,7 +277,7 @@ describe('viewprt', () => {
       assert.equal(getViewports()[0].observers[0], observer)
     })
 
-    it('triggers onEnter/onExit', done => {
+    it('triggers onEnter/onExit scrolling up/down', done => {
       const div = document.createElement('div')
       const rect = {
         top: 2000,
@@ -289,7 +316,46 @@ describe('viewprt', () => {
       getViewports()[0].checkObservers(getViewports()[0].getState())
     })
 
-    it('can trigger onEnter multiple times without an onExit callback', done => {
+    it('triggers onEnter/onExit scrolling left/right', done => {
+      const div = document.createElement('div')
+      const rect = {
+        top: 10,
+        left: 2000,
+        bottom: 10,
+        right: 10,
+        width: 10,
+        height: 10
+      }
+      div.getBoundingClientRect = () => rect
+
+      let called = 0
+      function checkDone() {
+        called++
+        called === 2 && done()
+      }
+
+      document.body.appendChild(div)
+      ElementObserver(div, {
+        onEnter() {
+          assert(1)
+          checkDone()
+        },
+        onExit() {
+          assert(1)
+          checkDone()
+        }
+      })
+
+      window.pageXOffset = 2000
+      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+
+      window.pageXOffset = 2010
+      div.getBoundingClientRect = () => ({ ...rect, left: -10, bottom: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+    })
+
+    it('can trigger onEnter multiple times without an onExit callback up/down', done => {
       const div = document.createElement('div')
       const rect = {
         top: 2000,
@@ -325,6 +391,45 @@ describe('viewprt', () => {
 
       window.pageYOffset = 2000
       div.getBoundingClientRect = () => ({ ...rect, top: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+    })
+
+    it('can trigger onEnter multiple times without an onExit callback left/right', done => {
+      const div = document.createElement('div')
+      const rect = {
+        top: 10,
+        left: 2000,
+        bottom: 10,
+        right: 10,
+        width: 10,
+        height: 10
+      }
+      div.getBoundingClientRect = () => rect
+
+      let called = 0
+      function checkDone() {
+        called++
+        called === 2 && done()
+      }
+
+      document.body.appendChild(div)
+      ElementObserver(div, {
+        onEnter() {
+          assert(1)
+          checkDone()
+        }
+      })
+
+      window.pageXOffset = 2000
+      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+
+      window.pageXOffset = 2000
+      div.getBoundingClientRect = () => ({ ...rect, left: -10, bottom: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+
+      window.pageXOffset = 2000
+      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
       getViewports()[0].checkObservers(getViewports()[0].getState())
     })
 

@@ -4,7 +4,6 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
   if (!(this instanceof PositionObserver)) {
     return new PositionObserver(...arguments)
   }
-
   this.on = {
     top: opts.onTop,
     bottom: opts.onBottom,
@@ -12,26 +11,26 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
     right: opts.onRight,
     maximized: opts.onMaximized
   }
-
   this._was = {
     top: true,
     bottom: false,
     left: true,
     right: false
   }
-
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
 })
 
 PositionObserver.prototype.check = function(viewportState) {
   const { on, _was, container, offset, once } = this
-  const { scrollHeight } = container
+  const { scrollHeight, scrollWidth } = container
   const { dimension, position } = viewportState
 
   const at = {
     top: position.y - offset <= 0,
-    bottom: scrollHeight > dimension.height && dimension.height + position.y + offset >= scrollHeight
+    bottom: scrollHeight > dimension.height && dimension.height + position.y + offset >= scrollHeight,
+    left: position.x - offset <= 0,
+    right: scrollWidth > dimension.width && dimension.width + position.x + offset >= scrollWidth
   }
 
   let untriggered = false
@@ -40,6 +39,10 @@ PositionObserver.prototype.check = function(viewportState) {
     on.bottom.call(this, container, viewportState)
   } else if (on.top && !_was.top && at.top) {
     on.top.call(this, container, viewportState)
+  } else if (on.right && !_was.right && at.right) {
+    on.right.call(this, container, viewportState)
+  } else if (on.left && !_was.left && at.left) {
+    on.left.call(this, container, viewportState)
   } else if (on.maximized && scrollHeight === dimension.height) {
     on.maximized.call(this, container, viewportState)
   } else {

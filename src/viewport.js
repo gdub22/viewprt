@@ -63,7 +63,7 @@ Viewport.prototype = {
       }
       position = {
         y: element.pageYOffset,
-        x: element.pageXoffset
+        x: element.pageXOffset
       }
     } else {
       dimension = {
