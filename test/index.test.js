@@ -27,6 +27,7 @@ Object.defineProperty(document.body, 'scrollWidth', {
 
 describe('viewprt', () => {
   beforeEach(() => {
+    window.pageXOffset = 0
     window.pageYOffset = 0
     window.innerWidth = 1024
     window.innerHeight = 768

@@ -63,11 +63,26 @@ Viewport.prototype = {
     } else {
       width = element.offsetWidth
       height = element.offsetHeight
-      positionY = element.scrollTop
       positionX = element.scrollLeft
+      positionY = element.scrollTop
     }
-    const directionX = lastX < positionX ? 'right' : 'left'
-    const directionY = lastY < positionY ? 'down' : 'up'
+
+    let directionX, directionY
+    if (lastX < positionX) {
+      directionX = 'right'
+    } else if (lastX > positionX) {
+      directionX = 'left'
+    } else {
+      directionX = 'none'
+    }
+
+    if (lastY < positionY) {
+      directionY = 'down'
+    } else if (lastY > positionY) {
+      directionY = 'up'
+    } else {
+      directionY = 'none'
+    }
 
     return { width, height, positionX, positionY, directionX, directionY }
   },
