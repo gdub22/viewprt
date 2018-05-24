@@ -6,12 +6,22 @@ body {
   border: 2em solid gray;
 }
 
-#pane {
+#verticalPane,
+#horizontalPane {
   height: 10em;
   padding: 1em;
   border: 0.5em solid gray;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+#horizontalPane {
+  flex-wrap: nowrap;
+  display: flex;
+}
+
+#horizontalPane p {
+  min-width: 40px;
 }
 
 .block {

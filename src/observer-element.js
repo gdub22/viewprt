@@ -4,9 +4,9 @@ function isElementInViewport(element, offset, viewportState) {
   const rect = element.getBoundingClientRect()
   return (
     !!(rect.width && rect.height) &&
-    rect.top < viewportState.height + offset &&
+    rect.top < viewportState.dimension.height + offset &&
     rect.bottom > 0 - offset &&
-    rect.left < viewportState.width + offset &&
+    rect.left < viewportState.dimension.width + offset &&
     rect.right > 0 - offset
   )
 }

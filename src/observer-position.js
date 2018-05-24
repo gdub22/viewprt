@@ -5,30 +5,43 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
     return new PositionObserver(...arguments)
   }
 
-  this.onTop = opts.onTop
-  this.onBottom = opts.onBottom
-  this.onMaximized = opts.onMaximized
-  this._wasTop = true
-  this._wasBottom = false
+  this.on = {
+    top: opts.onTop,
+    bottom: opts.onBottom,
+    left: opts.onLeft,
+    right: opts.onRight,
+    maximized: opts.onMaximized
+  }
+
+  this._was = {
+    top: true,
+    bottom: false,
+    left: true,
+    right: false
+  }
 
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
 })
 
 PositionObserver.prototype.check = function(viewportState) {
-  const { onBottom, onTop, onMaximized, _wasTop, _wasBottom, container, offset, once } = this
+  const { on, _was, container, offset, once } = this
   const { scrollHeight } = container
-  const { height, y } = viewportState
-  const atTop = y - offset <= 0
-  const atBottom = scrollHeight > height && height + y + offset >= scrollHeight
+  const { dimension, position } = viewportState
+
+  const at = {
+    top: position.y - offset <= 0,
+    bottom: scrollHeight > dimension.height && dimension.height + position.y + offset >= scrollHeight
+  }
+
   let untriggered = false
 
-  if (onBottom && !_wasBottom && atBottom) {
-    onBottom.call(this, container, viewportState)
-  } else if (onTop && !_wasTop && atTop) {
-    onTop.call(this, container, viewportState)
-  } else if (onMaximized && scrollHeight === height) {
-    onMaximized.call(this, container, viewportState)
+  if (on.bottom && !_was.bottom && at.bottom) {
+    on.bottom.call(this, container, viewportState)
+  } else if (on.top && !_was.top && at.top) {
+    on.top.call(this, container, viewportState)
+  } else if (on.maximized && scrollHeight === dimension.height) {
+    on.maximized.call(this, container, viewportState)
   } else {
     untriggered = true
   }
@@ -37,8 +50,7 @@ PositionObserver.prototype.check = function(viewportState) {
     this.destroy()
   }
 
-  this._wasTop = atTop
-  this._wasBottom = atBottom
+  this._was = at
 }
 
 export default PositionObserver

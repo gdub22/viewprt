@@ -6,7 +6,10 @@
 function Viewport(container) {
   this.container = container
   this.observers = []
-  this.lastY = 0
+  this.last = {
+    x: 0,
+    y: 0
+  }
   const element = (this.element = container === document.body ? window : container)
 
   let scheduled = false
@@ -17,7 +20,7 @@ function Viewport(container) {
       throttle(() => {
         const state = this.getState()
         this.checkObservers(state)
-        this.lastY = state.y
+        this.last = state.position
         scheduled = false
       })
     }
@@ -51,19 +54,32 @@ Viewport.prototype = {
     }
   },
   getState() {
-    const { element, lastY } = this
-    let width, height, y
+    const { element, last } = this
+    let dimension, position
     if (element === window) {
-      width = element.innerWidth
-      height = element.innerHeight
-      y = element.pageYOffset
+      dimension = {
+        width: element.innerWidth,
+        height: element.innerHeight
+      }
+      position = {
+        y: element.pageYOffset,
+        x: element.pageXoffset
+      }
     } else {
-      width = element.offsetWidth
-      height = element.offsetHeight
-      y = element.scrollTop
+      dimension = {
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      }
+      position = {
+        y: element.scrollTop,
+        x: element.scrollLeft
+      }
     }
-    const yDirection = lastY < y ? 'down' : 'up'
-    return { width, height, y, yDirection }
+    const direction = {
+      y: last.y < position.y ? 'down' : 'up',
+      x: last.x < position.x ? 'right' : 'left'
+    }
+    return { dimension, position, direction }
   },
   destroy() {
     const { element, handler, mutationObserver } = this

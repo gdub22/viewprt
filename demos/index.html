@@ -12,9 +12,16 @@
       <button onclick="bodyPosObserver.destroy()">Destroy</button>
       <button onclick="bodyPosObserver.activate()">Activate</button>
     </h1>
-    <div id="pane">
+    <div id="verticalPane">
       <h3>
-        An container with overflow
+        An container with vertical overflow
+        <button onclick="panePosObserver.destroy()">Destroy</button>
+        <button onclick="panePosObserver.activate()">Activate</button>
+      </h3>
+    </div>
+    <div id="horizontalPane">
+      <h3>
+        An container with horizontal overflow
         <button onclick="panePosObserver.destroy()">Destroy</button>
         <button onclick="panePosObserver.activate()">Activate</button>
       </h3>
@@ -45,7 +52,8 @@
       }
 
       addDummyContentTo(document.getElementById('content'))
-      addDummyContentTo(document.getElementById('pane'))
+      addDummyContentTo(document.getElementById('verticalPane'))
+      addDummyContentTo(document.getElementById('horizontalPane'))
       addDummyContentTo(document.getElementById('content2'))
     </script>
 
@@ -71,17 +79,34 @@
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached top', viewportState)
       }
 
+      function onLeft (element, viewportState) {
+        element.style.borderColor = green
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached left', viewportState)
+      }
+
+      function onRight (element, viewportState) {
+        element.style.borderColor = blue
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached right', viewportState)
+      }
+
       // Observe body position
       var bodyPosObserver = PositionObserver({
         onBottom: onBottom,
         onTop: onTop
       })
 
-      // Observe div position
-      var panePosObserver = PositionObserver({
-        container: document.getElementById('pane'),
+      // Observe vertical div position
+      var verticalPanePosObserver = PositionObserver({
+        container: document.getElementById('verticalPane'),
         onBottom: onBottom,
         onTop: onTop
+      })
+
+      // Observe horizontal div position
+      var horizontalPanePosObserver = PositionObserver({
+        container: document.getElementById('horizontalPane'),
+        onLeft: onLeft,
+        onRight: onRight
       })
 
       var elementObserver = ElementObserver(document.getElementById('block1'), {
