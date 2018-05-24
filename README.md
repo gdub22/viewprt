@@ -40,7 +40,7 @@ const positionObserver = PositionObserver({
   onBottom(container, viewportState) {}, // callback when the viewport reaches the bottom
   onTop(container, viewportState) {}, // callback when the viewport reaches the top
   onLeft(container, viewportState) {}, // callback when the viewport reaches the left
-  onRigt(container, viewportState) {}, // callback when the viewport reaches the right
+  onRight(container, viewportState) {}, // callback when the viewport reaches the right
   onMaximized(container, viewportState) {} // callback when the viewport and container are the same size
 })
 
