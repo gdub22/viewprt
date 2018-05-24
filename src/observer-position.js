@@ -4,47 +4,57 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
   if (!(this instanceof PositionObserver)) {
     return new PositionObserver(...arguments)
   }
-  this.on = {
-    top: opts.onTop,
-    bottom: opts.onBottom,
-    left: opts.onLeft,
-    right: opts.onRight,
-    maximized: opts.onMaximized
-  }
-  this._was = {
-    top: true,
-    bottom: false,
-    left: true,
-    right: false
-  }
+
+  this.onTop = opts.onTop
+  this.onBottom = opts.onBottom
+  this.onLeft = opts.onLeft
+  this.onRight = opts.onRight
+  this.onMaximized = opts.onMaximized
+
+  this._wasTop = true
+  this._wasBottom = false
+  this._wasLeft = true
+  this._wasRight = false
+
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
 })
 
 PositionObserver.prototype.check = function(viewportState) {
-  const { on, _was, container, offset, once } = this
+  const {
+    onTop,
+    onBottom,
+    onLeft,
+    onRight,
+    onMaximized,
+    _wasTop,
+    _wasBottom,
+    _wasLeft,
+    _wasRight,
+    container,
+    offset,
+    once
+  } = this
   const { scrollHeight, scrollWidth } = container
-  const { dimension, position } = viewportState
+  const { width, height, positionX, positionY } = viewportState
 
-  const at = {
-    top: position.y - offset <= 0,
-    bottom: scrollHeight > dimension.height && dimension.height + position.y + offset >= scrollHeight,
-    left: position.x - offset <= 0,
-    right: scrollWidth > dimension.width && dimension.width + position.x + offset >= scrollWidth
-  }
+  const atTop = positionY - offset <= 0
+  const atBottom = scrollHeight > height && height + positionY + offset >= scrollHeight
+  const atLeft = positionX - offset <= 0
+  const atRight = scrollWidth > width && width + positionX + offset >= scrollWidth
 
   let untriggered = false
 
-  if (on.bottom && !_was.bottom && at.bottom) {
-    on.bottom.call(this, container, viewportState)
-  } else if (on.top && !_was.top && at.top) {
-    on.top.call(this, container, viewportState)
-  } else if (on.right && !_was.right && at.right) {
-    on.right.call(this, container, viewportState)
-  } else if (on.left && !_was.left && at.left) {
-    on.left.call(this, container, viewportState)
-  } else if (on.maximized && scrollHeight === dimension.height) {
-    on.maximized.call(this, container, viewportState)
+  if (onBottom && !_wasBottom && atBottom) {
+    onBottom.call(this, container, viewportState)
+  } else if (onTop && !_wasTop && atTop) {
+    onTop.call(this, container, viewportState)
+  } else if (onRight && !_wasRight && atRight) {
+    onRight.call(this, container, viewportState)
+  } else if (onLeft && !_wasLeft && atLeft) {
+    onLeft.call(this, container, viewportState)
+  } else if (onMaximized && scrollHeight === height) {
+    onMaximized.call(this, container, viewportState)
   } else {
     untriggered = true
   }
@@ -53,7 +63,10 @@ PositionObserver.prototype.check = function(viewportState) {
     this.destroy()
   }
 
-  this._was = at
+  this._wasTop = atTop
+  this._wasBottom = atBottom
+  this._wasLeft = atLeft
+  this._wasRight = atRight
 }
 
 export default PositionObserver
