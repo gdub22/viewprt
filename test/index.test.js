@@ -14,15 +14,11 @@ let bodyScrollHeight, bodyScrollWidth
 bodyScrollHeight = bodyScrollWidth = 0
 Object.defineProperty(document.body, 'scrollHeight', {
   get: () => bodyScrollHeight,
-  set: v => {
-    bodyScrollHeight = v
-  }
+  set: v => (bodyScrollHeight = v)
 })
 Object.defineProperty(document.body, 'scrollWidth', {
   get: () => bodyScrollWidth,
-  set: v => {
-    bodyScrollWidth = v
-  }
+  set: v => (bodyScrollWidth = v)
 })
 
 describe('viewprt', () => {
@@ -431,6 +427,69 @@ describe('viewprt', () => {
 
       window.pageXOffset = 2000
       div.getBoundingClientRect = () => ({ ...rect, left: 0 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+    })
+
+    it('works in non-window containers', done => {
+      const div = document.createElement('div')
+      const rect = {
+        top: 2000,
+        left: 10,
+        bottom: 10,
+        right: 10,
+        width: 10,
+        height: 10
+      }
+      div.getBoundingClientRect = () => rect
+
+      const container = document.createElement('div')
+      const containerRect = {
+        top: 0,
+        left: 0,
+        bottom: 668,
+        right: 1024,
+        width: 1024,
+        height: 100
+      }
+      container.getBoundingClientRect = () => containerRect
+      Object.defineProperty(container, 'offsetWidth', {
+        get: () => containerRect.width,
+        set: v => (containerRect.width = v)
+      })
+      Object.defineProperty(container, 'offsetHeight', {
+        get: () => containerRect.height,
+        set: v => (containerRect.height = v)
+      })
+      container.offsetWidth = containerRect.width
+      container.offsetHeight = containerRect.height
+
+      let called = 0
+      function checkDone() {
+        called++
+        called === 2 && done()
+      }
+
+      document.body.appendChild(container)
+      container.appendChild(div)
+
+      ElementObserver(div, {
+        container,
+        onEnter() {
+          assert(1)
+          checkDone()
+        },
+        onExit() {
+          assert(1)
+          checkDone()
+        }
+      })
+
+      container.scrollTop = 2010
+      div.getBoundingClientRect = () => ({ ...rect, top: 10 })
+      getViewports()[0].checkObservers(getViewports()[0].getState())
+
+      container.scrollTop = 2110
+      div.getBoundingClientRect = () => ({ ...rect, top: -10, bottom: 0 })
       getViewports()[0].checkObservers(getViewports()[0].getState())
     })
 

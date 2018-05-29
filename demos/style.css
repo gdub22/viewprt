@@ -6,28 +6,34 @@ body {
   border: 2em solid gray;
 }
 
+h3 {
+  margin: 0;
+}
+
 #verticalPane,
 #horizontalPane {
-  height: 10em;
+  height: 15em;
   padding: 1em;
+  margin: 1em 0;
   border: 0.5em solid gray;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-#horizontalPane {
+#horizontalPane,
+#horizontalPane .dummyContent {
   flex-wrap: nowrap;
   display: flex;
 }
 
 #horizontalPane p {
-  min-width: 40px;
+  min-width: 50px;
+  text-align: center;
 }
 
 .block {
   background: gray;
-  height: 10em;
+  height: 5em;
   padding: 1em;
-  margin: 1em;
-  transition: background 0.4s;
+  transition: background 0.5s;
 }

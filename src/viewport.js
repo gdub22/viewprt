@@ -8,7 +8,7 @@ function Viewport(container) {
   this.observers = []
   this.lastX = 0
   this.lastY = 0
-  const element = (this.element = container === document.body ? window : container)
+  const scrollEl = (this.scrollEl = container === document.body ? window : container)
 
   let scheduled = false
   const throttle = window.requestAnimationFrame || (callback => setTimeout(callback, 1000 / 60))
@@ -25,8 +25,8 @@ function Viewport(container) {
     }
   })
 
-  element.addEventListener('scroll', handler)
-  element.addEventListener('resize', handler)
+  scrollEl.addEventListener('scroll', handler)
+  scrollEl.addEventListener('resize', handler)
 
   if (window.MutationObserver) {
     addEventListener('DOMContentLoaded', () => {
@@ -47,24 +47,24 @@ Viewport.prototype = {
     index > -1 && observers.splice(index, 1)
   },
   checkObservers(state) {
-    const { observers } = this
+    const { observers, scrollEl } = this
     for (let i = observers.length; i--; ) {
-      observers[i].check(state)
+      observers[i].check(state, scrollEl)
     }
   },
   getState() {
-    const { element, lastX, lastY } = this
+    const { scrollEl, lastX, lastY } = this
     let width, height, positionX, positionY
-    if (element === window) {
-      width = element.innerWidth
-      height = element.innerHeight
-      positionX = element.pageXOffset
-      positionY = element.pageYOffset
+    if (scrollEl === window) {
+      width = scrollEl.innerWidth
+      height = scrollEl.innerHeight
+      positionX = scrollEl.pageXOffset
+      positionY = scrollEl.pageYOffset
     } else {
-      width = element.offsetWidth
-      height = element.offsetHeight
-      positionX = element.scrollLeft
-      positionY = element.scrollTop
+      width = scrollEl.offsetWidth
+      height = scrollEl.offsetHeight
+      positionX = scrollEl.scrollLeft
+      positionY = scrollEl.scrollTop
     }
 
     let directionX, directionY
@@ -87,9 +87,9 @@ Viewport.prototype = {
     return { width, height, positionX, positionY, directionX, directionY }
   },
   destroy() {
-    const { element, handler, mutationObserver } = this
-    element.removeEventListener('scroll', handler)
-    element.removeEventListener('resize', handler)
+    const { scrollEl, handler, mutationObserver } = this
+    scrollEl.removeEventListener('scroll', handler)
+    scrollEl.removeEventListener('resize', handler)
     mutationObserver && mutationObserver.disconnect()
   }
 }
