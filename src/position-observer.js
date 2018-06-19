@@ -46,23 +46,14 @@ PositionObserver.prototype.check = function(viewportState) {
 
   let untriggered = false
 
-  if (onBottom && !_wasBottom && atBottom) {
-    onBottom.call(this, container, viewportState)
-  } else if (onTop && !_wasTop && atTop) {
-    onTop.call(this, container, viewportState)
-  } else if (onRight && !_wasRight && atRight) {
-    onRight.call(this, container, viewportState)
-  } else if (onLeft && !_wasLeft && atLeft) {
-    onLeft.call(this, container, viewportState)
-  } else if (onMaximized && scrollHeight === height) {
-    onMaximized.call(this, container, viewportState)
-  } else {
-    untriggered = true
-  }
+  if (onBottom && !_wasBottom && atBottom) onBottom.call(this, container, viewportState)
+  else if (onTop && !_wasTop && atTop) onTop.call(this, container, viewportState)
+  else if (onRight && !_wasRight && atRight) onRight.call(this, container, viewportState)
+  else if (onLeft && !_wasLeft && atLeft) onLeft.call(this, container, viewportState)
+  else if (onMaximized && scrollHeight === height) onMaximized.call(this, container, viewportState)
+  else untriggered = true
 
-  if (once && !untriggered) {
-    this.destroy()
-  }
+  if (once && !untriggered) this.destroy()
 
   this._wasTop = atTop
   this._wasBottom = atBottom

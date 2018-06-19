@@ -46,8 +46,6 @@ Observer.prototype = {
 const viewports = []
 function getViewportIndexForContainer(container) {
   for (let i = viewports.length; i--; ) {
-    if (viewports[i].container === container) {
-      return i
-    }
+    if (viewports[i].container === container) return i
   }
 }

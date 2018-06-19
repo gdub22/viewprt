@@ -17,22 +17,20 @@ ElementObserver.prototype.constructor = ElementObserver
 
 ElementObserver.prototype.check = function(viewportState) {
   const { onEnter, onExit, element, offset, once, _didEnter } = this
-  if (!isElementInDOM(element)) {
-    return this.destroy()
-  }
+  if (!isElementInDOM(element)) return this.destroy()
 
   const inViewport = isElementInViewport(element, offset, viewportState)
   if (!_didEnter && inViewport) {
     this._didEnter = true
     if (onEnter) {
       onEnter.call(this, element, viewportState)
-      once && this.destroy()
+      if (once) this.destroy()
     }
   } else if (_didEnter && !inViewport) {
     this._didEnter = false
     if (onExit) {
       onExit.call(this, element, viewportState)
-      once && this.destroy()
+      if (once) this.destroy()
     }
   }
 }

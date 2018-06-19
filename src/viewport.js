@@ -39,22 +39,21 @@ export default function Viewport(container) {
 Viewport.prototype = {
   addObserver(observer) {
     const { observers } = this
-    observers.indexOf(observer) === -1 && observers.push(observer)
+    if (observers.indexOf(observer) < 0) observers.push(observer)
   },
   removeObserver(observer) {
     const { observers } = this
     const index = observers.indexOf(observer)
-    index > -1 && observers.splice(index, 1)
+    if (index > -1) observers.splice(index, 1)
   },
   checkObservers(state) {
     const { observers } = this
-    for (let i = observers.length; i--; ) {
-      observers[i].check(state)
-    }
+    for (let i = observers.length; i--; ) observers[i].check(state)
   },
   getState() {
     const { element, lastX, lastY } = this
-    let width, height, positionX, positionY
+    let width, height, positionX, positionY, directionX, directionY
+
     if (element === window) {
       width = element.innerWidth
       height = element.innerHeight
@@ -67,22 +66,13 @@ Viewport.prototype = {
       positionY = element.scrollTop
     }
 
-    let directionX, directionY
-    if (lastX < positionX) {
-      directionX = 'right'
-    } else if (lastX > positionX) {
-      directionX = 'left'
-    } else {
-      directionX = 'none'
-    }
+    if (lastX < positionX) directionX = 'right'
+    else if (lastX > positionX) directionX = 'left'
+    else directionX = 'none'
 
-    if (lastY < positionY) {
-      directionY = 'down'
-    } else if (lastY > positionY) {
-      directionY = 'up'
-    } else {
-      directionY = 'none'
-    }
+    if (lastY < positionY) directionY = 'down'
+    else if (lastY > positionY) directionY = 'up'
+    else directionY = 'none'
 
     return { width, height, positionX, positionY, directionX, directionY }
   },
@@ -90,6 +80,6 @@ Viewport.prototype = {
     const { element, handler, mutationObserver } = this
     element.removeEventListener('scroll', handler)
     element.removeEventListener('resize', handler)
-    mutationObserver && mutationObserver.disconnect()
+    if (mutationObserver) mutationObserver.disconnect()
   }
 }
