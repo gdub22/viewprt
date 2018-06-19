@@ -31,7 +31,7 @@
     "test": "npm run clean && npm run format && npm run lint && npm run build-dev && npm run test:js",
     "format": "flt format",
     "lint": "flt lint",
-    "test:js": "flt test **/*.test.js --require test/helpers/env.js",
+    "test:js": "flt test",
     "prepublish": "npm run build",
     "clean": "rm -rf dist | rm -f .eslintcache",
     "demo": "open demos/index.html"

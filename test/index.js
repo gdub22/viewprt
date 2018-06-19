@@ -1,29 +1,30 @@
 const assert = require('assert')
 const rewire = require('rewire')
+const { JSDOM } = require('jsdom')
 
-// Using rewire to access private `viewports` array to get/reset state for tests
+// Setup JSDOM
+global.window = new JSDOM().window
+global.document = window.document
+global.Element = window.Element
+// JSDOM won't let you manually get/set properties it doesnt support, so use defineProperty to mock
+let bodyScrollHeight, bodyScrollWidth
+bodyScrollHeight = bodyScrollWidth = 0
+Object.defineProperty(document.body, 'scrollHeight', {
+  get: () => bodyScrollHeight,
+  set: v => (bodyScrollHeight = v)
+})
+Object.defineProperty(document.body, 'scrollWidth', {
+  get: () => bodyScrollWidth,
+  set: v => (bodyScrollWidth = v)
+})
+
+// Use rewire to access private `viewports` array to get/reset state between tests
 const viewprt = rewire('../dist/viewprt.js')
 const _viewports = viewprt.__get__('viewports')
 const getViewports = () => _viewports.slice()
 const resetViewports = () => (_viewports.length = 0)
 
 const { PositionObserver, ElementObserver } = viewprt
-
-// jsdom won't let you get/set document.body.scrollHeight/scrollWidth directly
-let bodyScrollHeight, bodyScrollWidth
-bodyScrollHeight = bodyScrollWidth = 0
-Object.defineProperty(document.body, 'scrollHeight', {
-  get: () => bodyScrollHeight,
-  set: v => {
-    bodyScrollHeight = v
-  }
-})
-Object.defineProperty(document.body, 'scrollWidth', {
-  get: () => bodyScrollWidth,
-  set: v => {
-    bodyScrollWidth = v
-  }
-})
 
 describe('viewprt', () => {
   beforeEach(() => {
