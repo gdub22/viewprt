@@ -3,7 +3,7 @@
  * A a scrollable container containing multiple observers
  * that are checked each time the viewport is manipulated (scrolled, resized, mutated)
  */
-function Viewport(container) {
+export default function Viewport(container) {
   this.container = container
   this.observers = []
   this.lastX = 0
@@ -93,5 +93,3 @@ Viewport.prototype = {
     mutationObserver && mutationObserver.disconnect()
   }
 }
-
-export default Viewport

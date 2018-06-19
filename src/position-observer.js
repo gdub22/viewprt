@@ -1,9 +1,7 @@
-import { Observer, ObserverInterface } from './observer-interface'
+import Observer from './observer'
 
-const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) {
-  if (!(this instanceof PositionObserver)) {
-    return new PositionObserver(...arguments)
-  }
+export default function PositionObserver(opts = {}) {
+  if (!(this instanceof PositionObserver)) return new PositionObserver(...arguments)
 
   this.onTop = opts.onTop
   this.onBottom = opts.onBottom
@@ -18,7 +16,10 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
 
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
-})
+}
+
+PositionObserver.prototype = Object.create(Observer.prototype)
+PositionObserver.prototype.constructor = PositionObserver
 
 PositionObserver.prototype.check = function(viewportState) {
   const {
@@ -68,5 +69,3 @@ PositionObserver.prototype.check = function(viewportState) {
   this._wasLeft = atLeft
   this._wasRight = atRight
 }
-
-export default PositionObserver
