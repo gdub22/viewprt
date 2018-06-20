@@ -16,8 +16,9 @@ export default function Viewport(container) {
     if (!scheduled) {
       scheduled = true
       throttle(() => {
+        const { observers } = this
         const state = this.getState()
-        this.checkObservers(state)
+        for (let i = observers.length; i--; ) observers[i].check(state)
         this.lastX = state.positionX
         this.lastY = state.positionY
         scheduled = false
@@ -37,19 +38,6 @@ export default function Viewport(container) {
 }
 
 Viewport.prototype = {
-  addObserver(observer) {
-    const { observers } = this
-    if (observers.indexOf(observer) < 0) observers.push(observer)
-  },
-  removeObserver(observer) {
-    const { observers } = this
-    const index = observers.indexOf(observer)
-    if (index > -1) observers.splice(index, 1)
-  },
-  checkObservers(state) {
-    const { observers } = this
-    for (let i = observers.length; i--; ) observers[i].check(state)
-  },
   getState() {
     const { element, lastX, lastY } = this
     let width, height, positionX, positionY, directionX, directionY
@@ -76,6 +64,7 @@ Viewport.prototype = {
 
     return { width, height, positionX, positionY, directionX, directionY }
   },
+
   destroy() {
     const { element, handler, mutationObserver } = this
     element.removeEventListener('scroll', handler)

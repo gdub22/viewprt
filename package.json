@@ -38,8 +38,7 @@
   },
   "devDependencies": {
     "flt": "^0.3.1",
-    "jsdom": "^11.11.0",
     "microbundle": "^0.4.4",
-    "rewire": "^4.0.1"
+    "puppeteer": "^1.5.0"
   }
 }

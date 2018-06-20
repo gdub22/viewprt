@@ -24,26 +24,33 @@ Observer.prototype = {
       viewports.push(viewport)
     }
 
-    viewport.addObserver(this)
+    const viewportObservers = viewport.observers
+    if (viewportObservers.indexOf(this) < 0) viewportObservers.push(this)
+
     return viewport
   },
 
   destroy() {
-    const index = getViewportIndexForContainer(this.container)
-    const viewport = viewports[index]
+    const viewportIndex = getViewportIndexForContainer(this.container)
+    const viewport = viewports[viewportIndex]
 
     if (viewport) {
-      viewport.removeObserver(this)
-      if (!viewport.observers.length) {
+      const viewportObservers = viewport.observers
+      const observerIndex = viewportObservers.indexOf(this)
+      if (observerIndex > -1) viewportObservers.splice(observerIndex, 1)
+
+      if (!viewportObservers.length) {
         viewport.destroy()
-        viewports.splice(index, 1)
+        viewports.splice(viewportIndex, 1)
       }
     }
   }
 }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
-const viewports = []
+// Expose private variable for tests. TODO: only in test build
+const viewports = (window.__viewports__ = [])
+
 function getViewportIndexForContainer(container) {
   for (let i = viewports.length; i--; ) {
     if (viewports[i].container === container) return i

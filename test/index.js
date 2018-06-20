@@ -1,518 +1,550 @@
-const assert = require('assert')
-const rewire = require('rewire')
-const { JSDOM } = require('jsdom')
+/* global PositionObserver, ElementObserver, __viewports__ */
 
-// Setup JSDOM
-global.window = new JSDOM().window
-global.document = window.document
-global.Element = window.Element
-// JSDOM won't let you manually get/set properties it doesnt support, so use defineProperty to mock
-let bodyScrollHeight, bodyScrollWidth
-bodyScrollHeight = bodyScrollWidth = 0
-Object.defineProperty(document.body, 'scrollHeight', {
-  get: () => bodyScrollHeight,
-  set: v => (bodyScrollHeight = v)
-})
-Object.defineProperty(document.body, 'scrollWidth', {
-  get: () => bodyScrollWidth,
-  set: v => (bodyScrollWidth = v)
-})
-
-// Use rewire to access private `viewports` array to get/reset state between tests
-const viewprt = rewire('../dist/viewprt.js')
-const _viewports = viewprt.__get__('viewports')
-const getViewports = () => _viewports.slice()
-const resetViewports = () => (_viewports.length = 0)
-
-const { PositionObserver, ElementObserver } = viewprt
+const path = require('path')
+const assert = require('assert').strict
+const puppeteer = require('puppeteer')
 
 describe('viewprt', () => {
-  beforeEach(() => {
-    window.pageXOffset = 0
-    window.pageYOffset = 0
-    window.innerWidth = 1024
-    window.innerHeight = 768
-    document.body.scrollWidth = 1024
-    document.body.scrollHeight = 768
+  let browser, page
+  const pageWidth = 1024
+  const pageHeight = 768
+  async function createPage() {
+    const pageUrl = `file:${path.join(__dirname, 'index.html')}`
+    page = await browser.newPage()
+    await page.setViewport({ width: pageWidth, height: pageHeight })
+    await page.goto(pageUrl)
+  }
+  async function closePage() {
+    await page.close()
+  }
+
+  before(async () => {
+    browser = await puppeteer.launch()
   })
 
-  afterEach(() => {
-    resetViewports()
+  beforeEach(async () => {
+    await createPage()
+  })
+
+  afterEach(async () => {
+    await closePage()
+  })
+
+  after(async () => {
+    await browser.close()
+  })
+
+  it('loads the umd library and exposes public functions', async () => {
+    const viewprt = await page.evaluate(() => window.viewprt)
+    assert(viewprt)
+    assert(viewprt.PositionObserver)
+    assert(viewprt.ElementObserver)
+  })
+
+  it('can create instances', async () => {
+    assert(await page.evaluate(() => new PositionObserver() instanceof PositionObserver))
+    assert(await page.evaluate(() => PositionObserver() instanceof PositionObserver))
+    assert(await page.evaluate(() => new ElementObserver() instanceof ElementObserver))
+    assert(await page.evaluate(() => ElementObserver() instanceof ElementObserver))
   })
 
   describe('options', () => {
-    it('resolves the offest option', () => {
-      let observer = PositionObserver()
-      assert.equal(observer.offset, 0)
-      observer = ElementObserver()
-      assert.equal(observer.offset, 0)
+    it('offset option', async () => {
+      async function testOption(input, expected) {
+        const posObserver = await page.evaluate(offset => PositionObserver({ offset }), input)
+        assert.equal(posObserver.offset, expected)
+        const elObserver = await page.evaluate(offset => ElementObserver(null, { offset }), input)
+        assert.equal(elObserver.offset, expected)
+      }
 
-      observer = PositionObserver({ offset: 100 })
-      assert.equal(observer.offset, 100)
-      observer = ElementObserver(null, { offset: 100 })
-      assert.equal(observer.offset, 100)
-
-      observer = PositionObserver({ offset: -100 })
-      assert.equal(observer.offset, -100)
-      observer = ElementObserver(null, { offset: -100 })
-      assert.equal(observer.offset, -100)
-
-      observer = PositionObserver({ offset: '100' })
-      assert.equal(observer.offset, 100)
-      observer = ElementObserver(null, { offset: '100' })
-      assert.equal(observer.offset, 100)
-
-      observer = PositionObserver({ offset: null })
-      assert.equal(observer.offset, 0)
-      observer = ElementObserver(null, { offset: null })
-      assert.equal(observer.offset, 0)
-
-      observer = PositionObserver({ offset: 'abc' })
-      assert.equal(observer.offset, 0)
-      observer = ElementObserver(null, { offset: 'abc' })
-      assert.equal(observer.offset, 0)
+      await testOption(undefined, 0)
+      await testOption(null, 0)
+      await testOption(100, 100)
+      await testOption(-100, -100)
+      await testOption('100', 100)
+      await testOption('abc', 0)
     })
 
-    it('resolves the container option', () => {
-      let observer = PositionObserver()
-      assert.equal(observer.container, document.body)
-      observer = ElementObserver()
-      assert.equal(observer.container, document.body)
+    it('once option', async () => {
+      async function testOption(input, expected) {
+        const posObserver = await page.evaluate(once => PositionObserver({ once }), input)
+        assert.equal(posObserver.once, expected)
+        const elObserver = await page.evaluate(once => ElementObserver(null, { once }), input)
+        assert.equal(elObserver.once, expected)
+      }
 
-      const container = document.createElement('div')
-      observer = PositionObserver({ container })
-      assert.equal(observer.container, container)
-      observer = ElementObserver(null, { container })
-      assert.equal(observer.container, container)
+      await testOption(true, true)
+      await testOption(false, false)
+      await testOption(0, false)
+      await testOption(1, true)
+      await testOption(undefined, false)
+      await testOption(null, false)
     })
 
-    it('resolves the once option', () => {
-      let observer = PositionObserver()
-      assert.equal(observer.once, false)
-      observer = ElementObserver()
-      assert.equal(observer.once, false)
+    it('container option', async () => {
+      assert(
+        await page.evaluate(() => {
+          const posObserver = PositionObserver()
+          return posObserver.container === document.body
+        })
+      )
+      assert(
+        await page.evaluate(() => {
+          const elObserver = ElementObserver()
+          return elObserver.container === document.body
+        })
+      )
 
-      observer = PositionObserver({ once: true })
-      assert.equal(observer.once, true)
-      observer = ElementObserver(null, { once: true })
-      assert.equal(observer.once, true)
+      assert(
+        await page.evaluate(() => {
+          const container = document.createElement('div')
+          const posObserver = PositionObserver({ container })
+          return posObserver.container === container
+        })
+      )
+      assert(
+        await page.evaluate(() => {
+          const container = document.createElement('div')
+          const elObserver = ElementObserver(null, { container })
+          return elObserver.container === container
+        })
+      )
+    })
+  })
 
-      observer = PositionObserver({ once: 0 })
-      assert.equal(observer.once, false)
-      observer = ElementObserver(null, { once: 0 })
-      assert.equal(observer.once, false)
+  describe('Observers', () => {
+    it('auto-activates, can destroy and re-activate', async () => {
+      async function testObserverType(type) {
+        const [
+          initialViewportCount,
+          initialObserverCount,
+          destroyedViewportCount,
+          reactivatedViewportCount,
+          reactivatedObserverCount,
+          alreadyActivatedViewportCount,
+          alreadyActivatedObserverCount
+        ] = await page.evaluate(type => {
+          const observer =
+            type === 'ElementObserver' ? ElementObserver(document.createElement('div')) : PositionObserver()
+          const initialViewportCount = __viewports__.length
+          const initialObserverCount = __viewports__[0].observers.length
+          observer.destroy()
+          const destroyedViewportCount = __viewports__.length
+          observer.activate()
+          const reactivatedViewportCount = __viewports__.length
+          const reactivatedObserverCount = __viewports__[0].observers.length
+          observer.activate()
+          const alreadyActivatedViewportCount = __viewports__.length
+          const alreadyActivatedObserverCount = __viewports__[0].observers.length
+          return [
+            initialViewportCount,
+            initialObserverCount,
+            destroyedViewportCount,
+            reactivatedViewportCount,
+            reactivatedObserverCount,
+            alreadyActivatedViewportCount,
+            alreadyActivatedObserverCount
+          ]
+        }, type)
+        assert.equal(initialViewportCount, 1)
+        assert.equal(initialObserverCount, 1)
+        assert.equal(destroyedViewportCount, 0)
+        assert.equal(reactivatedViewportCount, 1)
+        assert.equal(reactivatedObserverCount, 1)
+        assert.equal(alreadyActivatedViewportCount, 1)
+        assert.equal(alreadyActivatedObserverCount, 1)
+      }
 
-      observer = PositionObserver({ once: null })
-      assert.equal(observer.once, false)
-      observer = ElementObserver(null, { once: null })
-      assert.equal(observer.once, false)
+      await testObserverType('PositionObserver')
+      await closePage()
+      await createPage()
+      await testObserverType('ElementObserver')
+    })
+
+    it('reuses the same viewport if containers are the same', async () => {
+      async function testObserverType(type) {
+        const [viewportCount, observerCount1, observerCount2] = await page.evaluate(type => {
+          const Observer = window[type]
+          Observer()
+          Observer()
+          Observer()
+          const container = document.createElement('div')
+          if (type === 'ElementObserver') {
+            Observer(document.createElement('div'), { container })
+            Observer(document.createElement('div'), { container })
+          } else {
+            Observer({ container })
+            Observer({ container })
+          }
+          return [__viewports__.length, __viewports__[0].observers.length, __viewports__[1].observers.length]
+        }, type)
+        assert.equal(viewportCount, 2)
+        assert.equal(observerCount1, 3)
+        assert.equal(observerCount2, 2)
+      }
+
+      await testObserverType('PositionObserver')
+      await closePage()
+      await createPage()
+      await testObserverType('ElementObserver')
+    })
+
+    it('destroys after trigging with once option', async () => {
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+
+          return new Promise(resolve => {
+            PositionObserver({
+              once: true,
+              onBottom() {
+                setTimeout(() => resolve(__viewports__.length === 0))
+              }
+            })
+            window.scrollTo(0, contentHeight)
+          })
+        }, pageHeight)
+      )
+
+      await closePage()
+      await createPage()
+
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
+
+          return new Promise(resolve => {
+            ElementObserver(element, {
+              once: true,
+              onEnter() {
+                setTimeout(() => resolve(__viewports__.length === 0))
+              }
+            })
+            window.scrollTo(0, contentHeight)
+          })
+        }, pageHeight)
+      )
     })
   })
 
   describe('PositionObserver', () => {
-    it('can create instances', () => {
-      let observer = new PositionObserver()
-      assert.ok(observer instanceof PositionObserver)
+    it('triggers onBottom callback when reaching bottom', async () => {
+      assert(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
 
-      observer = PositionObserver()
-      assert.ok(observer instanceof PositionObserver)
+          return new Promise(resolve => {
+            PositionObserver({
+              onBottom() {
+                resolve(1)
+              }
+            })
+            window.scrollTo(0, contentHeight)
+          })
+        }, pageHeight)
+      )
     })
 
-    it('reuses the same viewport if containers are the same', () => {
-      let observer = PositionObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
+    it('triggers onTop callback when reaching top', async () => {
+      assert(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+          window.scrollTo(0, contentHeight)
 
-      observer = PositionObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 2)
-      assert.equal(getViewports()[0].observers[1], observer)
-
-      const container = document.createElement('div')
-      observer = PositionObserver({ container })
-      assert.equal(getViewports().length, 2)
-      assert.equal(getViewports()[1].observers.length, 1)
-      assert.equal(getViewports()[1].observers[0], observer)
-
-      observer = PositionObserver({ container })
-      assert.equal(getViewports().length, 2)
-      assert.equal(getViewports()[1].observers.length, 2)
-      assert.equal(getViewports()[1].observers[1], observer)
+          return new Promise(resolve => {
+            PositionObserver({
+              onTop() {
+                resolve(1)
+              }
+            })
+            window.scrollTo(0, 0)
+          })
+        }, pageHeight)
+      )
     })
 
-    it('auto activates', () => {
-      let observer = PositionObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
+    it('triggers onRight callback when reaching right', async () => {
+      assert(
+        await page.evaluate(pageWidth => {
+          const content = document.createElement('div')
+          const contentWidth = pageWidth * 2
+          content.style.height = '1px'
+          content.style.width = contentWidth + 'px'
+          document.body.appendChild(content)
 
-      observer = PositionObserver({ container: document.createElement('div') })
-      assert.equal(getViewports().length, 2)
-      assert.equal(getViewports()[1].observers.length, 1)
-      assert.equal(getViewports()[1].observers[0], observer)
+          return new Promise(resolve => {
+            PositionObserver({
+              onRight() {
+                resolve(1)
+              }
+            })
+            window.scrollTo(contentWidth, 0)
+          })
+        }, pageWidth)
+      )
     })
 
-    it('can (re)activate', () => {
-      const observer = PositionObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+    it('triggers onLeft callback when reaching left', async () => {
+      assert(
+        await page.evaluate(pageWidth => {
+          const content = document.createElement('div')
+          const contentWidth = pageWidth * 2
+          content.style.height = '1px'
+          content.style.width = contentWidth + 'px'
+          document.body.appendChild(content)
+          window.scrollTo(contentWidth, 0)
 
-      observer.activate() // doesn't do anything. already activated
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-
-      observer.destroy()
-      assert.equal(getViewports().length, 0)
-      observer.activate() // re-activated
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+          return new Promise(resolve => {
+            PositionObserver({
+              onLeft() {
+                resolve(1)
+              }
+            })
+            window.scrollTo(0, 0)
+          })
+        }, pageWidth)
+      )
     })
 
-    it('can destroy', () => {
-      const observer = PositionObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      observer.destroy()
-      assert.equal(getViewports().length, 0)
+    it('triggers onBottom callback if created while at bottom', async () => {
+      assert(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+          window.scrollTo(0, contentHeight)
 
-      observer.destroy() // destroying again doesn't throw
-      assert.equal(getViewports().length, 0)
-      assert.ok(observer) // still an instance, just not checked
+          return new Promise(resolve => {
+            PositionObserver({
+              onBottom() {
+                resolve(1)
+              }
+            })
+          })
+        }, pageHeight)
+      )
     })
 
-    it('triggers maximized but not top/bottom/left/right callbacks when content and container are same size', done => {
-      window.innerHeight = window.innerWidth = 500
-      document.body.scrollHeight = document.body.scrollWidth = 500
+    it('triggers onRight callback if created while at right', async () => {
+      assert(
+        await page.evaluate(pageWidth => {
+          const content = document.createElement('div')
+          const contentWidth = pageWidth * 2
+          content.style.height = '1px'
+          content.style.width = contentWidth + 'px'
+          document.body.appendChild(content)
+          window.scrollTo(contentWidth, 0)
 
-      const observer = PositionObserver({
-        once: true,
-        onTop() {
-          assert(0)
-        },
-        onBottom() {
-          assert(0)
-        },
-        onLeft() {
-          assert(0)
-        },
-        onRight() {
-          assert(0)
-        },
-        onMaximized() {
-          assert(1)
-          done()
-        }
-      })
-
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
+          return new Promise(resolve => {
+            PositionObserver({
+              onRight() {
+                resolve(1)
+              }
+            })
+          })
+        }, pageWidth)
+      )
     })
 
-    it('triggers bottom callback if created while at bottom', done => {
-      window.pageYOffset = 300
-      window.innerHeight = 500
-      document.body.scrollHeight = 800
+    it('triggers onMaximized but not other callbacks when content and container are same size', async () => {
+      assert(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
 
-      PositionObserver({
-        onBottom() {
-          assert(1)
-          done()
-        }
-      })
-    })
-
-    it('triggers right callback if created while at right', done => {
-      window.pageXOffset = 300
-      window.innerWidth = 500
-      document.body.scrollWidth = 800
-
-      PositionObserver({
-        onRight() {
-          assert(1)
-          done()
-        }
-      })
+          return new Promise(resolve => {
+            PositionObserver({
+              onMaximized() {
+                resolve(1)
+              },
+              onTop() {
+                resolve(0)
+              },
+              onBottom() {
+                resolve(0)
+              },
+              onLeft() {
+                resolve(0)
+              },
+              onRight() {
+                resolve(0)
+              }
+            })
+            window.scrollTo(0, contentHeight)
+            content.style.height = pageHeight + 'px'
+          })
+        }, pageHeight)
+      )
     })
   })
 
   describe('ElementObserver', () => {
-    it('can create instances', () => {
-      let observer = new ElementObserver()
-      assert.ok(observer instanceof ElementObserver)
+    it('triggers onEnter/onExit scrolling up/down', async () => {
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
 
-      observer = ElementObserver()
-      assert.ok(observer instanceof ElementObserver)
-    })
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
 
-    it('auto activates (if element exists and in DOM)', () => {
-      const div = document.createElement('div')
-      document.body.appendChild(div)
-      const observer = ElementObserver(div)
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
-    })
+          return new Promise(resolve => {
+            let entered, exited
+            ElementObserver(element, {
+              onEnter() {
+                entered = true
+              },
+              onExit() {
+                exited = true
+                entered && exited && resolve(1)
+              }
+            })
 
-    it('triggers onEnter if in view on creation', done => {
-      const div = document.createElement('div')
-      div.getBoundingClientRect = () => ({
-        top: 10,
-        left: 10,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      })
-
-      document.body.appendChild(div)
-      const observer = ElementObserver(div, {
-        onEnter() {
-          assert(1)
-          done()
-        }
-      })
-
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
-    })
-
-    it('triggers onEnter/onExit scrolling up/down', done => {
-      const div = document.createElement('div')
-      const rect = {
-        top: 2000,
-        left: 10,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      }
-      div.getBoundingClientRect = () => rect
-
-      let called = 0
-      function checkDone() {
-        called++
-        called === 2 && done()
-      }
-
-      document.body.appendChild(div)
-      ElementObserver(div, {
-        onEnter() {
-          assert(1)
-          checkDone()
-        },
-        onExit() {
-          assert(1)
-          checkDone()
-        }
-      })
-
-      window.pageYOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, top: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageYOffset = 2010
-      div.getBoundingClientRect = () => ({ ...rect, top: -10, bottom: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-    })
-
-    it('triggers onEnter/onExit scrolling left/right', done => {
-      const div = document.createElement('div')
-      const rect = {
-        top: 10,
-        left: 2000,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      }
-      div.getBoundingClientRect = () => rect
-
-      let called = 0
-      function checkDone() {
-        called++
-        called === 2 && done()
-      }
-
-      document.body.appendChild(div)
-      ElementObserver(div, {
-        onEnter() {
-          assert(1)
-          checkDone()
-        },
-        onExit() {
-          assert(1)
-          checkDone()
-        }
-      })
-
-      window.pageXOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageXOffset = 2010
-      div.getBoundingClientRect = () => ({ ...rect, left: -10, bottom: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-    })
-
-    it('can trigger onEnter multiple times without an onExit callback up/down', done => {
-      const div = document.createElement('div')
-      const rect = {
-        top: 2000,
-        left: 10,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      }
-      div.getBoundingClientRect = () => rect
-
-      let called = 0
-      function checkDone() {
-        called++
-        called === 2 && done()
-      }
-
-      document.body.appendChild(div)
-      ElementObserver(div, {
-        onEnter() {
-          assert(1)
-          checkDone()
-        }
-      })
-
-      window.pageYOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, top: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageYOffset = 2010
-      div.getBoundingClientRect = () => ({ ...rect, top: -10, bottom: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageYOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, top: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-    })
-
-    it('can trigger onEnter multiple times without an onExit callback left/right', done => {
-      const div = document.createElement('div')
-      const rect = {
-        top: 10,
-        left: 2000,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      }
-      div.getBoundingClientRect = () => rect
-
-      let called = 0
-      function checkDone() {
-        called++
-        called === 2 && done()
-      }
-
-      document.body.appendChild(div)
-      ElementObserver(div, {
-        onEnter() {
-          assert(1)
-          checkDone()
-        }
-      })
-
-      window.pageXOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageXOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, left: -10, bottom: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-
-      window.pageXOffset = 2000
-      div.getBoundingClientRect = () => ({ ...rect, left: 0 })
-      getViewports()[0].checkObservers(getViewports()[0].getState())
-    })
-
-    it('respects once option', done => {
-      const div = document.createElement('div')
-      div.getBoundingClientRect = () => ({
-        top: 10,
-        left: 10,
-        bottom: 10,
-        right: 10,
-        width: 10,
-        height: 10
-      })
-
-      document.body.appendChild(div)
-      ElementObserver(div, {
-        once: true,
-        onEnter() {
-          assert(1)
-          setTimeout(() => {
-            assert.equal(getViewports().length, 0)
-            done()
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => window.scrollTo(0, 0), 65)
           })
-        }
-      })
+        }, pageHeight)
+      )
     })
 
-    it('can (re)activate', () => {
-      const observer = ElementObserver()
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+    it('triggers onEnter/onExit scrolling left/right', async () => {
+      assert.ok(
+        await page.evaluate(pageWidth => {
+          const content = document.createElement('div')
+          const contentWidth = pageWidth * 2
+          content.style.width = contentWidth + 'px'
+          content.style.height = '10px'
+          document.body.appendChild(content)
 
-      observer.activate() // doesn't do anything. already activated
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
 
-      observer.destroy()
-      assert.equal(getViewports().length, 0)
-      observer.activate() // re-activated
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+          return new Promise(resolve => {
+            let entered, exited
+            ElementObserver(element, {
+              onEnter() {
+                entered = true
+              },
+              onExit() {
+                exited = true
+                entered && exited && resolve(1)
+              }
+            })
+
+            window.scrollTo(contentWidth, 0)
+            setTimeout(() => window.scrollTo(0, 0), 65)
+          })
+        }, pageWidth)
+      )
     })
 
-    it('auto destroys if no longer DOM', () => {
-      const div = document.createElement('div')
-      document.body.appendChild(div)
-      const observer = ElementObserver(div)
+    it('should trigger onEnter multiple times without an onExit callback', async () => {
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
 
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
 
-      document.body.removeChild(div)
-      getViewports()[0].checkObservers()
-      assert.equal(getViewports().length, 0)
+          return new Promise(resolve => {
+            let entered = 0
+            ElementObserver(element, {
+              onEnter() {
+                entered++
+                entered === 2 && resolve(1)
+              }
+            })
+
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => window.scrollTo(0, 0), 65)
+            setTimeout(() => window.scrollTo(0, contentHeight), 65 * 2)
+          })
+        }, pageHeight)
+      )
     })
 
-    it('does not auto-destroy if not initiallly in DOM, only when checked', () => {
-      const div = document.createElement('div')
-      const observer = ElementObserver(div)
+    it('triggers onEnter if in view upon creation', async () => {
+      assert.ok(
+        await page.evaluate(() => {
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
 
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
-      assert.equal(getViewports()[0].observers[0], observer)
-
-      getViewports()[0].checkObservers()
-      assert.equal(getViewports().length, 0)
+          return new Promise(resolve => {
+            ElementObserver(element, {
+              onEnter() {
+                resolve(1)
+              }
+            })
+          })
+        })
+      )
     })
 
-    it('can destroy', () => {
-      const div = document.createElement('div')
-      document.body.appendChild(div)
-      const observer = ElementObserver(div)
-      assert.equal(getViewports().length, 1)
-      assert.equal(getViewports()[0].observers.length, 1)
+    it('auto destroys if no longer DOM', async () => {
+      const results = await page.evaluate(pageHeight => {
+        const content = document.createElement('div')
+        const contentHeight = pageHeight * 2
+        content.style.height = contentHeight + 'px'
+        document.body.appendChild(content)
 
-      observer.destroy()
-      assert.equal(getViewports().length, 0)
-      observer.destroy() // destroying again doesn't throw
-      assert.equal(getViewports().length, 0)
-      assert.ok(observer) // still an instance, just not checked
+        const element = document.createElement('div')
+        element.style.height = '10px'
+        document.body.appendChild(element)
+
+        const results = []
+        ElementObserver(element)
+        results.push(__viewports__.length)
+        document.body.removeChild(element)
+        window.scrollTo(0, contentHeight)
+        return new Promise(resolve => {
+          setTimeout(() => {
+            results.push(__viewports__.length)
+            resolve(results)
+          }, 65)
+        })
+      }, pageHeight)
+
+      assert.deepEqual(results, [1, 0])
+    })
+
+    it('does not auto-destroy if not initiallly in DOM', async () => {
+      assert.ok(
+        await page.evaluate(() => {
+          const element = document.createElement('div')
+          element.style.height = '10px'
+
+          ElementObserver(element)
+          return __viewports__.length === 1
+        })
+      )
     })
   })
 })
