@@ -48,8 +48,9 @@ Observer.prototype = {
 }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
-// Expose private variable for tests. TODO: only in test build
-const viewports = (window.__viewports__ = [])
+const viewports = []
+// Expose private variable for tests
+if (process.env.NODE_ENV === 'test') window.__viewports__ = viewports
 
 function getViewportIndexForContainer(container) {
   for (let i = viewports.length; i--; ) {
