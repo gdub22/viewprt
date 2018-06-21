@@ -12,30 +12,35 @@
       <button onclick="bodyPosObserver.destroy()">Destroy</button>
       <button onclick="bodyPosObserver.activate()">Activate</button>
     </h1>
+
     <div id="verticalPane">
       <h3>
         An container with vertical overflow
         <button onclick="verticalPanePosObserver.destroy()">Destroy</button>
         <button onclick="verticalPanePosObserver.activate()">Activate</button>
       </h3>
+      <div class="dummyContent"></div>
     </div>
+
     <div id="horizontalPane">
       <h3>
         An container with horizontal overflow
         <button onclick="horizontalPanePosObserver.destroy()">Destroy</button>
         <button onclick="horizontalPanePosObserver.activate()">Activate</button>
       </h3>
+      <div class="dummyContent"></div>
     </div>
-    <div id="content"></div>
-    <div id="block1" class="block">
+
+    <div id="elementInBody" class="block">
       <h3>
-        An element
-        <button onclick="addDummyContentTo(document.getElementById('content'), 100)">Move</button>
-        <button onclick="elementObserver.destroy()">Destroy</button>
-        <button onclick="elementObserver.activate()">Activate</button>
+        Element
+        <button onclick="moveElementInBody();this.style.display='none'">Move</button>
+        <button onclick="elementInBodyObserver.destroy()">Destroy</button>
+        <button onclick="elementInBodyObserver.activate()">Activate</button>
       </h3>
     </div>
-    <div id="content2"></div>
+    
+    <div class="dummyContent"></div>
 
     <script>
       // Demo setup: create some dummy content
@@ -45,16 +50,19 @@
         return el
       }
 
-      function addDummyContentTo (el, count) {
-        for (var i = 0; i < 30; i++) {
+      function addDummyContentTo (el) {
+        for (var i = 0; i < 50; i++) {
           el.appendChild(createDummyEl(i))
         }
       }
 
-      addDummyContentTo(document.getElementById('content'))
-      addDummyContentTo(document.getElementById('verticalPane'))
-      addDummyContentTo(document.getElementById('horizontalPane'))
-      addDummyContentTo(document.getElementById('content2'))
+      function moveElementInBody() {
+        const elementInBody = document.getElementById('elementInBody')
+        document.body.appendChild(elementInBody)
+      }
+
+      const dummyEls = document.getElementsByClassName('dummyContent')
+      ;[].forEach.call(dummyEls, addDummyContentTo)
     </script>
 
     <!-- 
@@ -72,52 +80,49 @@
 
       function onBottom (element, viewportState) {
         element.style.borderColor = green
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached bottom', viewportState)
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached bottom', element, viewportState)
       }
       function onTop (element, viewportState) {
         element.style.borderColor = blue
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached top', viewportState)
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached top', element, viewportState)
       }
-
       function onLeft (element, viewportState) {
         element.style.borderColor = green
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached left', viewportState)
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached left', element, viewportState)
       }
-
       function onRight (element, viewportState) {
         element.style.borderColor = blue
-        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'reached right', viewportState)
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached right', element, viewportState)
+      }
+      function onEnter(element, viewportState) {
+        element.style.backgroundColor = green
+        console.log('Entered viewport', element, viewportState)
+      }
+      function onExit(element, viewportState) {
+        element.style.backgroundColor = blue
+        console.log('Exited viewport', element, viewportState)
       }
 
-      // Observe body position
       var bodyPosObserver = PositionObserver({
         onBottom: onBottom,
         onTop: onTop
       })
 
-      // Observe vertical div position
       var verticalPanePosObserver = PositionObserver({
         container: document.getElementById('verticalPane'),
         onBottom: onBottom,
         onTop: onTop
       })
 
-      // Observe horizontal div position
       var horizontalPanePosObserver = PositionObserver({
         container: document.getElementById('horizontalPane'),
         onLeft: onLeft,
         onRight: onRight
       })
 
-      var elementObserver = ElementObserver(document.getElementById('block1'), {
-        onEnter: function (element, viewportState) {
-          element.style.backgroundColor = green
-          console.log('Entered viewport', viewportState)
-        },
-        onExit: function (element, viewportState) {
-          element.style.backgroundColor = blue
-          console.log('Exited viewport', viewportState)
-        }
+      var elementInBodyObserver = ElementObserver(document.getElementById('elementInBody'), {
+        onEnter: onEnter,
+        onExit: onExit
       })
     </script>
   </body>

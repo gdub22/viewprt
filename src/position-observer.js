@@ -1,9 +1,7 @@
-import { Observer, ObserverInterface } from './observer-interface'
+import Observer from './observer'
 
-const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) {
-  if (!(this instanceof PositionObserver)) {
-    return new PositionObserver(...arguments)
-  }
+export default function PositionObserver(opts = {}) {
+  if (!(this instanceof PositionObserver)) return new PositionObserver(...arguments)
 
   this.onTop = opts.onTop
   this.onBottom = opts.onBottom
@@ -18,7 +16,10 @@ const PositionObserver = ObserverInterface(function PositionObserver(opts = {}) 
 
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
-})
+}
+
+PositionObserver.prototype = Object.create(Observer.prototype)
+PositionObserver.prototype.constructor = PositionObserver
 
 PositionObserver.prototype.check = function(viewportState) {
   const {
@@ -45,28 +46,17 @@ PositionObserver.prototype.check = function(viewportState) {
 
   let untriggered = false
 
-  if (onBottom && !_wasBottom && atBottom) {
-    onBottom.call(this, container, viewportState)
-  } else if (onTop && !_wasTop && atTop) {
-    onTop.call(this, container, viewportState)
-  } else if (onRight && !_wasRight && atRight) {
-    onRight.call(this, container, viewportState)
-  } else if (onLeft && !_wasLeft && atLeft) {
-    onLeft.call(this, container, viewportState)
-  } else if (onMaximized && scrollHeight === height) {
-    onMaximized.call(this, container, viewportState)
-  } else {
-    untriggered = true
-  }
+  if (onBottom && !_wasBottom && atBottom) onBottom.call(this, container, viewportState)
+  else if (onTop && !_wasTop && atTop) onTop.call(this, container, viewportState)
+  else if (onRight && !_wasRight && atRight) onRight.call(this, container, viewportState)
+  else if (onLeft && !_wasLeft && atLeft) onLeft.call(this, container, viewportState)
+  else if (onMaximized && scrollHeight === height) onMaximized.call(this, container, viewportState)
+  else untriggered = true
 
-  if (once && !untriggered) {
-    this.destroy()
-  }
+  if (once && !untriggered) this.destroy()
 
   this._wasTop = atTop
   this._wasBottom = atBottom
   this._wasLeft = atLeft
   this._wasRight = atRight
 }
-
-export default PositionObserver

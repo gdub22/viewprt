@@ -4,10 +4,8 @@
   "description": "Tiny, high performance viewport position & intersection observer",
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
-  "source": "src/index.js",
-  "main": "dist/viewprt.js",
-  "module": "dist/viewprt.es.js",
-  "browser": "dist/viewprt.umd.js",
+  "main": "dist/viewprt.umd.js",
+  "module": "dist/viewprt.m.js",
   "files": [
     "dist"
   ],
@@ -25,21 +23,23 @@
     "url": "git+https://github.com/gpoitch/viewprt.git"
   },
   "scripts": {
-    "build": "microbundle",
-    "build-dev": "microbundle --compress false",
+    "build": "NODE_ENV=production rollup -c",
+    "build-test": "NODE_ENV=test rollup -c",
     "dev": "microbundle watch",
-    "test": "npm run clean && npm run format && npm run lint && npm run build-dev && npm run test:js",
+    "test": "npm run clean && npm run format && npm run lint && npm run build-test && npm run test:js",
     "format": "flt format",
     "lint": "flt lint",
-    "test:js": "flt test **/*.test.js --require test/helpers/env.js",
+    "test:js": "flt test",
     "prepublish": "npm run build",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist | rm -f .eslintcache",
     "demo": "open demos/index.html"
   },
   "devDependencies": {
-    "flt": "^0.3.0",
-    "jsdom": "^11.11.0",
-    "microbundle": "^0.4.4",
-    "rewire": "^4.0.1"
+    "flt": "^0.3.1",
+    "puppeteer": "^1.5.0",
+    "rollup": "^0.61.1",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-terser": "^1.0.1"
   }
 }

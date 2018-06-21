@@ -1,2 +1,2 @@
-export { default as PositionObserver } from './observer-position'
-export { default as ElementObserver } from './observer-element'
+export { default as PositionObserver } from './position-observer'
+export { default as ElementObserver } from './element-observer'

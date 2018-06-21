@@ -3,7 +3,7 @@
  * A a scrollable container containing multiple observers
  * that are checked each time the viewport is manipulated (scrolled, resized, mutated)
  */
-function Viewport(container) {
+export default function Viewport(container) {
   this.container = container
   this.observers = []
   this.lastX = 0
@@ -16,8 +16,9 @@ function Viewport(container) {
     if (!scheduled) {
       scheduled = true
       throttle(() => {
+        const { observers } = this
         const state = this.getState()
-        this.checkObservers(state)
+        for (let i = observers.length; i--; ) observers[i].check(state)
         this.lastX = state.positionX
         this.lastY = state.positionY
         scheduled = false
@@ -37,24 +38,10 @@ function Viewport(container) {
 }
 
 Viewport.prototype = {
-  addObserver(observer) {
-    const { observers } = this
-    observers.indexOf(observer) === -1 && observers.push(observer)
-  },
-  removeObserver(observer) {
-    const { observers } = this
-    const index = observers.indexOf(observer)
-    index > -1 && observers.splice(index, 1)
-  },
-  checkObservers(state) {
-    const { observers } = this
-    for (let i = observers.length; i--; ) {
-      observers[i].check(state)
-    }
-  },
   getState() {
     const { element, lastX, lastY } = this
-    let width, height, positionX, positionY
+    let width, height, positionX, positionY, directionX, directionY
+
     if (element === window) {
       width = element.innerWidth
       height = element.innerHeight
@@ -67,31 +54,21 @@ Viewport.prototype = {
       positionY = element.scrollTop
     }
 
-    let directionX, directionY
-    if (lastX < positionX) {
-      directionX = 'right'
-    } else if (lastX > positionX) {
-      directionX = 'left'
-    } else {
-      directionX = 'none'
-    }
+    if (lastX < positionX) directionX = 'right'
+    else if (lastX > positionX) directionX = 'left'
+    else directionX = 'none'
 
-    if (lastY < positionY) {
-      directionY = 'down'
-    } else if (lastY > positionY) {
-      directionY = 'up'
-    } else {
-      directionY = 'none'
-    }
+    if (lastY < positionY) directionY = 'down'
+    else if (lastY > positionY) directionY = 'up'
+    else directionY = 'none'
 
     return { width, height, positionX, positionY, directionX, directionY }
   },
+
   destroy() {
     const { element, handler, mutationObserver } = this
     element.removeEventListener('scroll', handler)
     element.removeEventListener('resize', handler)
-    mutationObserver && mutationObserver.disconnect()
+    if (mutationObserver) mutationObserver.disconnect()
   }
 }
-
-export default Viewport
