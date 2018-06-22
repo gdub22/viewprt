@@ -1,6 +1,6 @@
 {
   "name": "viewprt",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Tiny, high performance viewport position & intersection observer",
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
