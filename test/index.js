@@ -461,6 +461,44 @@ describe('viewprt', () => {
       )
     })
 
+    it('triggers on non-window containers', async () => {
+      assert.ok(
+        await page.evaluate(() => {
+          const container = document.createElement('div')
+          container.style.height = '100px'
+          container.style.width = '100px'
+          container.style.overflow = 'auto'
+          document.body.appendChild(container)
+
+          const spacer = document.createElement('div')
+          spacer.style.height = '200px'
+          container.appendChild(spacer)
+
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          element.style.width = '10px'
+          container.appendChild(element)
+
+          return new Promise(resolve => {
+            let entered, exited
+            ElementObserver(element, {
+              container,
+              onEnter() {
+                entered = true
+              },
+              onExit() {
+                exited = true
+                entered && exited && resolve(1)
+              }
+            })
+
+            container.scrollTop = 200
+            setTimeout(() => (container.scrollTop = 0), 65)
+          })
+        })
+      )
+    })
+
     it('should trigger onEnter multiple times without an onExit callback', async () => {
       assert.ok(
         await page.evaluate(pageHeight => {

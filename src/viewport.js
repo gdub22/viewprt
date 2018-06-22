@@ -62,7 +62,7 @@ Viewport.prototype = {
     else if (lastY > positionY) directionY = 'up'
     else directionY = 'none'
 
-    return { width, height, positionX, positionY, directionX, directionY }
+    return { width, height, positionX, positionY, directionX, directionY, viewportElement: element }
   },
 
   destroy() {
