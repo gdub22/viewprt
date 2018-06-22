@@ -26,7 +26,7 @@ export default function Viewport(container) {
     }
   })
 
-  document.addEventListener('scroll', handler, true)
+  window.addEventListener('scroll', handler, true)
   window.addEventListener('resize', handler, true)
 
   if (window.MutationObserver) {
@@ -66,9 +66,9 @@ Viewport.prototype = {
   },
 
   destroy() {
-    const { element, handler, mutationObserver } = this
-    element.removeEventListener('scroll', handler)
-    element.removeEventListener('resize', handler)
+    const { handler, mutationObserver } = this
+    window.removeEventListener('scroll', handler)
+    window.removeEventListener('resize', handler)
     if (mutationObserver) mutationObserver.disconnect()
   }
 }
