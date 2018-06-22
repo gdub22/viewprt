@@ -19,14 +19,16 @@ export default [
     output: {
       format: 'umd',
       name: 'viewprt',
-      file: 'dist/viewprt.umd.js'
+      file: 'dist/viewprt.umd.js',
+      sourcemap: true
     }
   },
   {
     ...config,
     output: {
       format: 'es',
-      file: 'dist/viewprt.m.js'
+      file: 'dist/viewprt.m.js',
+      sourcemap: true
     }
   }
 ]

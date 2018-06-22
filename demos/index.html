@@ -20,6 +20,12 @@
         <button onclick="verticalPanePosObserver.activate()">Activate</button>
       </h3>
       <div class="dummyContent"></div>
+      <div id="elementInVerticalPane" class="block">
+        <h3>Element</h3>
+        <button onclick="elementInVerticalPaneObserver.destroy()">Destroy</button>
+        <button onclick="elementInVerticalPaneObserver.activate()">Activate</button>
+      </div>
+      <div class="dummyContent"></div>
     </div>
 
     <div id="horizontalPane">
@@ -28,6 +34,12 @@
         <button onclick="horizontalPanePosObserver.destroy()">Destroy</button>
         <button onclick="horizontalPanePosObserver.activate()">Activate</button>
       </h3>
+      <div class="dummyContent"></div>
+      <div id="elementInHorizontalPane" class="block">
+        <h3>Element</h3>
+        <button onclick="elementInHorizontalPaneObserver.destroy()">Destroy</button>
+        <button onclick="elementInHorizontalPaneObserver.activate()">Activate</button>
+      </div>
       <div class="dummyContent"></div>
     </div>
 
@@ -121,6 +133,18 @@
       })
 
       var elementInBodyObserver = ElementObserver(document.getElementById('elementInBody'), {
+        onEnter: onEnter,
+        onExit: onExit
+      })
+
+      var elementInVerticalPaneObserver = ElementObserver(document.getElementById('elementInVerticalPane'), {
+        container: document.getElementById('verticalPane'),
+        onEnter: onEnter,
+        onExit: onExit
+      })
+
+      var elementInHorizontalPaneObserver = ElementObserver(document.getElementById('elementInHorizontalPane'), {
+        container: document.getElementById('horizontalPane'),
         onEnter: onEnter,
         onExit: onExit
       })
