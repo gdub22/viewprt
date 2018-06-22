@@ -8,7 +8,7 @@ export default function Viewport(container) {
   this.observers = []
   this.lastX = 0
   this.lastY = 0
-  const element = (this.element = container === document.body ? window : container)
+  this.element = container === document.body ? window : container
 
   let scheduled = false
   const throttle = window.requestAnimationFrame || (callback => setTimeout(callback, 1000 / 60))
@@ -26,13 +26,13 @@ export default function Viewport(container) {
     }
   })
 
-  element.addEventListener('scroll', handler)
-  element.addEventListener('resize', handler)
+  window.addEventListener('scroll', handler, true)
+  window.addEventListener('resize', handler, true)
 
   if (window.MutationObserver) {
-    addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
       const mutationObserver = (this.mutationObserver = new MutationObserver(handler))
-      mutationObserver.observe(container, { attributes: true, childList: true, subtree: true })
+      mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
     })
   }
 }
@@ -66,9 +66,9 @@ Viewport.prototype = {
   },
 
   destroy() {
-    const { element, handler, mutationObserver } = this
-    element.removeEventListener('scroll', handler)
-    element.removeEventListener('resize', handler)
+    const { handler, mutationObserver } = this
+    window.removeEventListener('scroll', handler)
+    window.removeEventListener('resize', handler)
     if (mutationObserver) mutationObserver.disconnect()
   }
 }

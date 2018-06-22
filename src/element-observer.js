@@ -42,12 +42,25 @@ function isElementInViewport(element, offset, viewportState) {
 
   let topBound, bottomBound, leftBound, rightBound
   const viewportElement = viewportState.viewportElement
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+  const windowTopBound = windowHeight
+  const windowLeftBound = windowWidth
+  const windowRightBound = 0
+  const windowBottomBound = 0
+
   if (viewportElement === window) {
-    topBound = viewportState.height
-    bottomBound = 0
-    leftBound = viewportState.width
-    rightBound = 0
+    topBound = windowTopBound
+    bottomBound = windowBottomBound
+    leftBound = windowLeftBound
+    rightBound = windowRightBound
   } else {
+    const isInWindow =
+      elRect.top < windowTopBound &&
+      elRect.bottom > windowBottomBound &&
+      elRect.left < windowLeftBound &&
+      elRect.right > windowRightBound
+    if (!isInWindow) return false
     const scrollElRect = viewportElement.getBoundingClientRect()
     topBound = scrollElRect.bottom
     bottomBound = scrollElRect.top

@@ -461,7 +461,7 @@ describe('viewprt', () => {
       )
     })
 
-    it('triggers on non-window containers', async () => {
+    it('triggers on non-window containers when scrolling container', async () => {
       assert.ok(
         await page.evaluate(() => {
           const container = document.createElement('div')
@@ -496,6 +496,46 @@ describe('viewprt', () => {
             setTimeout(() => (container.scrollTop = 0), 65)
           })
         })
+      )
+    })
+
+    it('triggers on non-window containers when scrolling window', async () => {
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const spacer = document.createElement('div')
+          const spacerHeight = pageHeight * 2
+          spacer.style.height = spacerHeight + 'px'
+          document.body.appendChild(spacer)
+
+          const container = document.createElement('div')
+          const containerHeight = 100
+          container.style.height = containerHeight + 'px'
+          container.style.width = containerHeight + 'px'
+          container.style.overflow = 'auto'
+          document.body.appendChild(container)
+
+          const element = document.createElement('div')
+          element.style.height = containerHeight / 2 + 'px'
+          element.style.width = containerHeight / 2 + 'px'
+          container.appendChild(element)
+
+          return new Promise(resolve => {
+            let entered, exited
+            ElementObserver(element, {
+              container,
+              onEnter() {
+                entered = true
+              },
+              onExit() {
+                exited = true
+                entered && exited && resolve(1)
+              }
+            })
+
+            window.scrollTo(0, spacerHeight + containerHeight)
+            setTimeout(() => window.scrollTo(0, 0), 65)
+          })
+        }, pageHeight)
       )
     })
 
