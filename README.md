@@ -20,7 +20,6 @@ import { PositionObserver, ElementObserver } from 'viewprt'
 // Observe when an element enters and exits the viewport:
 const elementObserver = ElementObserver(document.getElementById('element'), {
   // options (defaults)
-  container: document.body, // the viewport container element
   offset: 0, // offset from the edge of the viewport in pixels
   once: false, // if true, observer is detroyed after first callback is triggered
   onEnter(element, viewportState) {}, // callback when the element enters the viewport
