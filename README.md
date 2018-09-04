@@ -25,21 +25,21 @@ import {
 // ElementObserver(element, options)
 const elementObserver = ElementObserver(document.getElementById('element'), {
   onEnter(element, viewport) {}, // callback when the element enters the viewport
-  onExit(element, viewport) {},  // callback when the element exits the viewport
-  offset: 0,                     // offset from the edge of the viewport in pixels
-  once: false                    // if true, observer is detroyed after first callback is triggered
+  onExit(element, viewport) {}, // callback when the element exits the viewport
+  offset: 0, // offset from the edge of the viewport in pixels
+  once: false // if true, observer is detroyed after first callback is triggered
 })
 
 // PositionObserver(options)
 const positionObserver = PositionObserver({
-  onBottom(container, viewport) {},   // callback when the viewport reaches the bottom
-  onTop(container, viewport) {},      // callback when the viewport reaches the top
-  onLeft(container, viewport) {},     // callback when the viewport reaches the left
-  onRight(container, viewport) {},    // callback when the viewport reaches the right
-  onMaximized(container, viewport) {} // callback when the viewport and container are the same size,
-  container: document.body,           // the viewport element to observe the position of
-  offset: 0,                          // offset from the edge of the viewport in pixels
-  once: false                         // if true, observer is detroyed after first callback is triggered
+  onBottom(container, viewport) {}, // callback when the viewport reaches the bottom
+  onTop(container, viewport) {}, // callback when the viewport reaches the top
+  onLeft(container, viewport) {}, // callback when the viewport reaches the left
+  onRight(container, viewport) {}, // callback when the viewport reaches the right
+  onMaximized(container, viewport) {}, // callback when the viewport and container are the same size
+  container: document.body, // the viewport element to observe the position of
+  offset: 0, // offset from the edge of the viewport in pixels
+  once: false // if true, observer is detroyed after first callback is triggered
 })
 ```
 
@@ -65,3 +65,8 @@ elementObserver.destroy() // This happens automatically if the element is remove
 positionObserver.activate()
 elementObserver.activate()
 ```
+
+### Browser support
+
+Chrome, Firefox, Edge, IE 11+, Safari 8+  
+(requestAnimationFrame, Map, MutationObserver)
