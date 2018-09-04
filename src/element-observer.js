@@ -16,10 +16,10 @@ ElementObserver.prototype = Object.create(Observer.prototype)
 ElementObserver.prototype.constructor = ElementObserver
 
 ElementObserver.prototype.check = function(viewportState) {
-  const { onEnter, onExit, element, offset, once, _didEnter } = this
+  const { container, onEnter, onExit, element, offset, once, _didEnter } = this
   if (!isElementInDOM(element)) return this.destroy()
 
-  const inViewport = isElementInViewport(element, offset, viewportState)
+  const inViewport = isElementInViewport(element, offset, viewportState, container)
   if (!_didEnter && inViewport) {
     this._didEnter = true
     if (onEnter) {
@@ -35,13 +35,12 @@ ElementObserver.prototype.check = function(viewportState) {
   }
 }
 
-function isElementInViewport(element, offset, viewportState) {
+function isElementInViewport(element, offset, viewportState, container) {
   const elRect = element.getBoundingClientRect()
 
   if (!elRect.width || !elRect.height) return false
 
   let topBound, bottomBound, leftBound, rightBound
-  const viewportElement = viewportState.viewportElement
   const windowWidth = window.innerWidth
   const windowHeight = window.innerHeight
   const windowTopBound = windowHeight
@@ -49,7 +48,7 @@ function isElementInViewport(element, offset, viewportState) {
   const windowRightBound = 0
   const windowBottomBound = 0
 
-  if (viewportElement === window) {
+  if (container === document.body) {
     topBound = windowTopBound
     bottomBound = windowBottomBound
     leftBound = windowLeftBound
@@ -61,7 +60,7 @@ function isElementInViewport(element, offset, viewportState) {
       elRect.left < windowLeftBound &&
       elRect.right > windowRightBound
     if (!isInWindow) return false
-    const scrollElRect = viewportElement.getBoundingClientRect()
+    const scrollElRect = container.getBoundingClientRect()
     topBound = scrollElRect.bottom
     bottomBound = scrollElRect.top
     leftBound = scrollElRect.right
