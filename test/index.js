@@ -126,16 +126,16 @@ describe('viewprt', () => {
         ] = await page.evaluate(type => {
           const observer =
             type === 'ElementObserver' ? ElementObserver(document.createElement('div')) : PositionObserver()
-          const initialViewportCount = __viewports__.length
-          const initialObserverCount = __viewports__[0].observers.length
+          const initialViewportCount = __viewports__.size
+          const initialObserverCount = __viewports__.get(document.body).observers.length
           observer.destroy()
-          const destroyedViewportCount = __viewports__.length
+          const destroyedViewportCount = __viewports__.size
           observer.activate()
-          const reactivatedViewportCount = __viewports__.length
-          const reactivatedObserverCount = __viewports__[0].observers.length
+          const reactivatedViewportCount = __viewports__.size
+          const reactivatedObserverCount = __viewports__.get(document.body).observers.length
           observer.activate()
-          const alreadyActivatedViewportCount = __viewports__.length
-          const alreadyActivatedObserverCount = __viewports__[0].observers.length
+          const alreadyActivatedViewportCount = __viewports__.size
+          const alreadyActivatedObserverCount = __viewports__.get(document.body).observers.length
           return [
             initialViewportCount,
             initialObserverCount,
@@ -176,7 +176,11 @@ describe('viewprt', () => {
             Observer({ container })
             Observer({ container })
           }
-          return [__viewports__.length, __viewports__[0].observers.length, __viewports__[1].observers.length]
+          return [
+            __viewports__.size,
+            __viewports__.get(document.body).observers.length,
+            __viewports__.get(container).observers.length
+          ]
         }, type)
         assert.equal(viewportCount, 2)
         assert.equal(observerCount1, 3)
@@ -201,7 +205,7 @@ describe('viewprt', () => {
             PositionObserver({
               once: true,
               onBottom() {
-                setTimeout(() => resolve(__viewports__.length === 0))
+                setTimeout(() => resolve(__viewports__.size === 0))
               }
             })
             window.scrollTo(0, contentHeight)
@@ -227,7 +231,7 @@ describe('viewprt', () => {
             ElementObserver(element, {
               once: true,
               onEnter() {
-                setTimeout(() => resolve(__viewports__.length === 0))
+                setTimeout(() => resolve(__viewports__.size === 0))
               }
             })
             window.scrollTo(0, contentHeight)
@@ -599,12 +603,12 @@ describe('viewprt', () => {
 
         const results = []
         ElementObserver(element)
-        results.push(__viewports__.length)
+        results.push(__viewports__.size)
         document.body.removeChild(element)
         window.scrollTo(0, contentHeight)
         return new Promise(resolve => {
           setTimeout(() => {
-            results.push(__viewports__.length)
+            results.push(__viewports__.size)
             resolve(results)
           }, 65)
         })
@@ -620,7 +624,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
 
           ElementObserver(element)
-          return __viewports__.length === 1
+          return __viewports__.size === 1
         })
       )
     })

@@ -14,14 +14,11 @@ export default function Observer(opts) {
 Observer.prototype = {
   activate() {
     const container = this.container
-    const index = getViewportIndexForContainer(container)
-    let viewport
+    let viewport = viewports.get(container)
 
-    if (index > -1) {
-      viewport = viewports[index]
-    } else {
+    if (!viewport) {
       viewport = new Viewport(container)
-      viewports.push(viewport)
+      viewports.set(container, viewport)
     }
 
     const viewportObservers = viewport.observers
@@ -31,29 +28,22 @@ Observer.prototype = {
   },
 
   destroy() {
-    const viewportIndex = getViewportIndexForContainer(this.container)
-    const viewport = viewports[viewportIndex]
+    const container = this.container
+    const viewport = viewports.get(container)
 
     if (viewport) {
       const viewportObservers = viewport.observers
       const observerIndex = viewportObservers.indexOf(this)
       if (observerIndex > -1) viewportObservers.splice(observerIndex, 1)
-
       if (!viewportObservers.length) {
         viewport.destroy()
-        viewports.splice(viewportIndex, 1)
+        viewports.delete(container)
       }
     }
   }
 }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
-const viewports = []
+const viewports = new Map()
 // Expose private variable for tests
 if (process.env.NODE_ENV === 'test') window.__viewports__ = viewports
-
-function getViewportIndexForContainer(container) {
-  for (let i = viewports.length; i--; ) {
-    if (viewports[i].container === container) return i
-  }
-}
