@@ -4,31 +4,30 @@ const { terser: minify } = require('rollup-plugin-terser')
 
 const ENV = process.env.NODE_ENV
 
-const config = {
+const baseConfig = {
   input: 'src/index.js',
-  plugins: [
-    buble(),
-    replace({ 'process.env.NODE_ENV': JSON.stringify(ENV) }),
-    ENV === 'production' && minify({ sourceMap: true })
-  ]
+  output: {
+    name: 'viewprt',
+    sourcemap: true
+  },
+  plugins: [buble(), replace({ 'process.env.NODE_ENV': JSON.stringify(ENV) }), ENV === 'production' && minify()]
 }
 
 export default [
   {
-    ...config,
+    ...baseConfig,
     output: {
+      ...baseConfig.output,
       format: 'umd',
-      name: 'viewprt',
-      file: 'dist/viewprt.umd.js',
-      sourcemap: true
+      file: 'dist/viewprt.umd.js'
     }
   },
   {
-    ...config,
+    ...baseConfig,
     output: {
-      format: 'es',
-      file: 'dist/viewprt.m.js',
-      sourcemap: true
+      ...baseConfig.output,
+      format: 'esm',
+      file: 'dist/viewprt.m.js'
     }
   }
 ]
