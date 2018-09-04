@@ -1,7 +1,7 @@
 {
   "name": "viewprt",
-  "version": "2.2.1",
-  "description": "Tiny, high performance viewport position & intersection observer",
+  "version": "3.0.0",
+  "description": "A tiny, dependency-free, high performance viewport position & intersection observation tool",
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
   "main": "dist/viewprt.umd.js",
