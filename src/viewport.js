@@ -1,7 +1,7 @@
 /**
  * @class `Viewport`
- * A a scrollable container containing multiple observers
- * that are checked each time the viewport is manipulated (scrolled, resized, mutated)
+ * A scrollable container containing multiple observers that
+ * are checked each time the viewport is manipulated
  */
 export default function Viewport(container) {
   this.container = container
@@ -10,11 +10,10 @@ export default function Viewport(container) {
   this.lastY = 0
 
   let scheduled = false
-  const throttle = window.requestAnimationFrame || (callback => setTimeout(callback, 1000 / 60))
   const handler = (this.handler = () => {
     if (!scheduled) {
       scheduled = true
-      throttle(() => {
+      requestAnimationFrame(() => {
         const { observers } = this
         const state = this.getState()
         for (let i = observers.length; i--; ) observers[i].check(state)
@@ -27,13 +26,10 @@ export default function Viewport(container) {
 
   addEventListener('scroll', handler, true)
   addEventListener('resize', handler, true)
-
-  if (window.MutationObserver) {
-    document.addEventListener('DOMContentLoaded', () => {
-      const mutationObserver = (this.mutationObserver = new MutationObserver(handler))
-      mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
-    })
-  }
+  addEventListener('DOMContentLoaded', () => {
+    const mutationObserver = (this.mutationObserver = new MutationObserver(handler))
+    mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
+  })
 }
 
 Viewport.prototype = {
