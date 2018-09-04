@@ -395,6 +395,43 @@ describe('viewprt', () => {
         }, pageHeight)
       )
     })
+
+    it('debounces scroll/resize events', async () => {
+      assert.equal(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+          window.scrollTo(0, contentHeight)
+
+          return new Promise(resolve => {
+            const debounceValue = 200
+            let entered = 0
+            PositionObserver({
+              debounce: debounceValue,
+              onTop() {
+                entered = entered + 1
+              },
+              onBottom() {
+                entered = entered + 1
+              }
+            })
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => {
+              window.scrollTo(0, 0)
+              setTimeout(() => {
+                window.scrollTo(0, contentHeight)
+                setTimeout(() => {
+                  resolve(entered)
+                }, debounceValue + 100)
+              }, debounceValue - 100)
+            }, debounceValue - 100)
+          })
+        }, pageHeight),
+        1
+      )
+    })
   })
 
   describe('ElementObserver', () => {
@@ -622,6 +659,47 @@ describe('viewprt', () => {
           ElementObserver(element)
           return __viewports__.length === 1
         })
+      )
+    })
+
+    it('debounces scroll/resize events', async () => {
+      assert.equal(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
+
+          return new Promise(resolve => {
+            const debounceValue = 200
+            let entered = 0
+            ElementObserver(element, {
+              debounce: debounceValue,
+              onEnter() {
+                entered = entered + 1
+              },
+              onExit() {
+                entered = entered + 1
+              }
+            })
+
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => {
+              window.scrollTo(0, 0)
+              setTimeout(() => {
+                window.scrollTo(0, contentHeight)
+                setTimeout(() => {
+                  resolve(entered)
+                }, debounceValue + 100)
+              }, debounceValue - 100)
+            }, debounceValue - 100)
+          })
+        }, pageHeight),
+        1
       )
     })
   })

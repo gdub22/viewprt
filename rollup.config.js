@@ -1,5 +1,6 @@
 const buble = require('rollup-plugin-buble')
 const replace = require('rollup-plugin-replace')
+const resolve = require('rollup-plugin-node-resolve')
 const { terser: minify } = require('rollup-plugin-terser')
 
 const ENV = process.env.NODE_ENV
@@ -7,6 +8,7 @@ const ENV = process.env.NODE_ENV
 const config = {
   input: 'src/index.js',
   plugins: [
+    resolve(),
     buble(),
     replace({ 'process.env.NODE_ENV': JSON.stringify(ENV) }),
     ENV === 'production' && minify({ sourceMap: true })

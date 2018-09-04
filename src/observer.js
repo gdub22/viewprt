@@ -8,19 +8,21 @@ export default function Observer(opts) {
   this.offset = ~~opts.offset || 0
   this.container = opts.container || document.body
   this.once = Boolean(opts.once)
+  this.debounce = opts.debounce ? Number(opts.debounce) : 0
   return this.activate()
 }
 
 Observer.prototype = {
   activate() {
     const container = this.container
+    const debounce = this.debounce
     const index = getViewportIndexForContainer(container)
     let viewport
 
     if (index > -1) {
       viewport = viewports[index]
     } else {
-      viewport = new Viewport(container)
+      viewport = new Viewport(container, debounce)
       viewports.push(viewport)
     }
 
