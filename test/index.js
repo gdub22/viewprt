@@ -396,8 +396,8 @@ describe('viewprt', () => {
       )
     })
 
-    it('debounces scroll/resize events', async () => {
-      assert.equal(
+    it('handles scroll/resize events with custom handler', async () => {
+      assert.notEqual(
         await page.evaluate(pageHeight => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
@@ -406,30 +406,19 @@ describe('viewprt', () => {
           window.scrollTo(0, contentHeight)
 
           return new Promise(resolve => {
-            const debounceValue = 200
-            let entered = 0
+            let count = 0
             PositionObserver({
-              debounce: debounceValue,
-              onTop() {
-                entered = entered + 1
+              handleScrollResizeEvent: handler => {
+                count = count + 1
+                return handler
               },
               onBottom() {
-                entered = entered + 1
+                resolve(1)
               }
             })
-            window.scrollTo(0, contentHeight)
-            setTimeout(() => {
-              window.scrollTo(0, 0)
-              setTimeout(() => {
-                window.scrollTo(0, contentHeight)
-                setTimeout(() => {
-                  resolve(entered)
-                }, debounceValue + 100)
-              }, debounceValue - 100)
-            }, debounceValue - 100)
           })
         }, pageHeight),
-        1
+        0
       )
     })
   })
@@ -662,8 +651,8 @@ describe('viewprt', () => {
       )
     })
 
-    it('debounces scroll/resize events', async () => {
-      assert.equal(
+    it('handles scroll/resize events with custom handler', async () => {
+      assert.notEqual(
         await page.evaluate(pageHeight => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
@@ -675,31 +664,27 @@ describe('viewprt', () => {
           document.body.appendChild(element)
 
           return new Promise(resolve => {
-            const debounceValue = 200
-            let entered = 0
+            let entered, exited
+            let count = 0
             ElementObserver(element, {
-              debounce: debounceValue,
+              handleScrollResizeEvent: handler => {
+                count = count + 1
+                return handler
+              },
               onEnter() {
-                entered = entered + 1
+                entered = true
               },
               onExit() {
-                entered = entered + 1
+                exited = true
+                entered && exited && resolve(1)
               }
             })
 
             window.scrollTo(0, contentHeight)
-            setTimeout(() => {
-              window.scrollTo(0, 0)
-              setTimeout(() => {
-                window.scrollTo(0, contentHeight)
-                setTimeout(() => {
-                  resolve(entered)
-                }, debounceValue + 100)
-              }, debounceValue - 100)
-            }, debounceValue - 100)
+            setTimeout(() => window.scrollTo(0, 0), 65)
           })
         }, pageHeight),
-        1
+        0
       )
     })
   })

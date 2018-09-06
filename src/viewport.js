@@ -1,13 +1,11 @@
-import { debounce } from 'throttle-debounce'
-
 /**
  * @class `Viewport`
  * A a scrollable container containing multiple observers
  * that are checked each time the viewport is manipulated (scrolled, resized, mutated)
  */
-export default function Viewport(container, debounceValue) {
+export default function Viewport(container, handleScrollResizeEvent) {
   this.container = container
-  this.debounce = debounceValue
+  this.handleScrollResizeEvent = handleScrollResizeEvent
   this.observers = []
   this.lastX = 0
   this.lastY = 0
@@ -29,10 +27,10 @@ export default function Viewport(container, debounceValue) {
     }
   })
 
-  const debouncedHandler = this.debounce >= 0 ? debounce(this.debounce, handler) : handler
+  const wrappedHandler = this.handleScrollResizeEvent(handler)
 
-  window.addEventListener('scroll', debouncedHandler, true)
-  window.addEventListener('resize', debouncedHandler, true)
+  window.addEventListener('scroll', wrappedHandler, true)
+  window.addEventListener('resize', wrappedHandler, true)
 
   if (window.MutationObserver) {
     document.addEventListener('DOMContentLoaded', () => {
@@ -71,9 +69,9 @@ Viewport.prototype = {
   },
 
   destroy() {
-    const { debouncedHandler, mutationObserver } = this
-    window.removeEventListener('scroll', debouncedHandler)
-    window.removeEventListener('resize', debouncedHandler)
+    const { wrappedHandler, mutationObserver } = this
+    window.removeEventListener('scroll', wrappedHandler)
+    window.removeEventListener('resize', wrappedHandler)
     if (mutationObserver) mutationObserver.disconnect()
   }
 }

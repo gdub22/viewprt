@@ -23,7 +23,7 @@ const elementObserver = ElementObserver(document.getElementById('element'), {
   container: document.body, // the viewport container element
   offset: 0, // offset from the edge of the viewport in pixels
   once: false, // if true, observer is detroyed after first callback is triggered
-  debounce: 0, // debounce value for scroll/resize events
+  handleScrollResizeEvent: handler => handler, // handle scroll/resize event (e.g. throttle/debounce event)
   onEnter(element, viewportState) {}, // callback when the element enters the viewport
   onExit(element, viewportState) {} // callback when the element exits the viewport
 })
@@ -34,7 +34,7 @@ const positionObserver = PositionObserver({
   container: document.body, // the viewport container element
   offset: 0, // offset from the edge of the viewport in pixels
   once: false, // if true, observer is detroyed after first callback is triggered
-  debounce: 0, // debounce value for scroll/resize events
+  handleScrollResizeEvent: handler => handler, // handle scroll/resize event (e.g. throttle/debounce event)
   onBottom(container, viewportState) {}, // callback when the viewport reaches the bottom
   onTop(container, viewportState) {}, // callback when the viewport reaches the top
   onLeft(container, viewportState) {}, // callback when the viewport reaches the left
