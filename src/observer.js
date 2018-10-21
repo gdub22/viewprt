@@ -1,6 +1,7 @@
 import Viewport from './viewport'
 
 function ObserverCollection(opts) {
+  if (!(this instanceof ObserverCollection)) return new ObserverCollection(...arguments)
   this.viewports = new Map()
   this.handleScrollResize = opts.handleScrollResize || (h => h)
 }
