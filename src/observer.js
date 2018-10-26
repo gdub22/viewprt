@@ -1,6 +1,6 @@
 import Viewport from './viewport'
 
-function ObserverCollection(opts) {
+function ObserverCollection(opts = {}) {
   if (!(this instanceof ObserverCollection)) return new ObserverCollection(...arguments)
   this.viewports = new Map()
   this.handleScrollResize = opts.handleScrollResize || (h => h)
@@ -15,7 +15,7 @@ export default function Observer(opts) {
   this.container = opts.container || document.body
   this.once = Boolean(opts.once)
   this.observerCollection =
-    opts.observerCollection instanceof ObserverCollection ? opts.observerCollection : observerCollection
+    opts.observerCollection instanceof ObserverCollection ? opts.observerCollection : defaultObserverCollection
   return this.activate()
 }
 
@@ -55,7 +55,7 @@ Observer.prototype = {
 export { ObserverCollection }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
-const observerCollection = new ObserverCollection({ handleScrollResize: h => h })
+const defaultObserverCollection = new ObserverCollection()
 
 // Expose private variable for tests
-if (process.env.NODE_ENV === 'test') window.__viewports__ = observerCollection.viewports
+if (process.env.NODE_ENV === 'test') window.__viewports__ = defaultObserverCollection.viewports
