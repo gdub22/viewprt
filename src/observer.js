@@ -1,9 +1,9 @@
 import Viewport from './viewport'
 
-function ObserverCollection(opts = {}) {
+export function ObserverCollection(opts = {}) {
   if (!(this instanceof ObserverCollection)) return new ObserverCollection(...arguments)
   this.viewports = new Map()
-  this.handleScrollResize = opts.handleScrollResize || (h => h)
+  this.handleScrollResize = opts.handleScrollResize
 }
 
 /**
@@ -51,8 +51,6 @@ Observer.prototype = {
     }
   }
 }
-
-export { ObserverCollection }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
 const defaultObserverCollection = new ObserverCollection()
