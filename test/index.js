@@ -1,4 +1,4 @@
-/* global PositionObserver, ElementObserver, __viewports__ */
+/* global PositionObserver, ElementObserver, ObserverCollection, __viewports__ */
 
 const path = require('path')
 const assert = require('assert').strict
@@ -39,6 +39,7 @@ describe('viewprt', () => {
     assert(viewprt)
     assert(viewprt.PositionObserver)
     assert(viewprt.ElementObserver)
+    assert(viewprt.ObserverCollection)
   })
 
   it('can create instances', async () => {
@@ -46,6 +47,8 @@ describe('viewprt', () => {
     assert(await page.evaluate(() => PositionObserver() instanceof PositionObserver))
     assert(await page.evaluate(() => new ElementObserver() instanceof ElementObserver))
     assert(await page.evaluate(() => ElementObserver() instanceof ElementObserver))
+    assert(await page.evaluate(() => new ObserverCollection() instanceof ObserverCollection))
+    assert(await page.evaluate(() => ObserverCollection() instanceof ObserverCollection))
   })
 
   describe('options', () => {
@@ -399,6 +402,36 @@ describe('viewprt', () => {
         }, pageHeight)
       )
     })
+
+    it('uses custom ObserverCollection', async () => {
+      const timeout = 300
+      assert.equal(
+        await page.evaluate(
+          (pageHeight, timeout) => {
+            const content = document.createElement('div')
+            const contentHeight = pageHeight * 2
+            content.style.height = contentHeight + 'px'
+            document.body.appendChild(content)
+
+            return new Promise(resolve => {
+              PositionObserver({
+                observerCollection: new ObserverCollection({
+                  handleScrollResize: h => () =>
+                    setTimeout(() => {
+                      h()
+                      resolve(timeout)
+                    }, timeout)
+                })
+              })
+              window.scrollTo(0, contentHeight)
+            })
+          },
+          pageHeight,
+          timeout
+        ),
+        timeout
+      )
+    })
   })
 
   describe('ElementObserver', () => {
@@ -626,6 +659,42 @@ describe('viewprt', () => {
           ElementObserver(element)
           return __viewports__.size === 1
         })
+      )
+    })
+
+    it('uses custom ObserverCollection', async () => {
+      const timeout = 300
+      assert.equal(
+        await page.evaluate(
+          (pageHeight, timeout) => {
+            const content = document.createElement('div')
+            const contentHeight = pageHeight * 2
+            content.style.height = contentHeight + 'px'
+            document.body.appendChild(content)
+
+            const element = document.createElement('div')
+            element.style.height = '10px'
+            document.body.appendChild(element)
+
+            return new Promise(resolve => {
+              ElementObserver(element, {
+                observerCollection: new ObserverCollection({
+                  handleScrollResize: h => () =>
+                    setTimeout(() => {
+                      h()
+                      resolve(timeout)
+                    }, timeout)
+                })
+              })
+
+              window.scrollTo(0, contentHeight)
+              setTimeout(() => window.scrollTo(0, 0), 65)
+            })
+          },
+          pageHeight,
+          timeout
+        ),
+        timeout
       )
     })
   })
