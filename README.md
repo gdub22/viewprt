@@ -15,33 +15,33 @@ npm i viewprt -S
 <!-- prettier-ignore-start -->
 ```js
 import {
-  ElementObserver, // Use this to observe when an element enters and exits the viewport
-  PositionObserver // Use this to observe when a viewport reaches its bounds
-  ObserverCollection // Use different viewport handling
+  ElementObserver,   // Use this to observe when an element enters and exits the viewport
+  PositionObserver   // Use this to observe when a viewport reaches its bounds
+  ObserverCollection // Advanced: Used for grouping custom viewport handling
 } from 'viewprt'
 
 // All options are optional. The defaults are shown below.
 
 // ElementObserver(element, options)
 const elementObserver = ElementObserver(document.getElementById('element'), {
-  onEnter(element, viewport) {},                  // callback when the element enters the viewport
-  onExit(element, viewport) {},                   // callback when the element exits the viewport
-  offset: 0,                                      // offset from the edges of the viewport in pixels
-  once: false,                                    // if true, observer is detroyed after first callback is triggered
-  observerCollection: new ObserverCollection()    // use different viewport collection for element
+  onEnter(element, viewport) {},               // callback when the element enters the viewport
+  onExit(element, viewport) {},                // callback when the element exits the viewport
+  offset: 0,                                   // offset from the edges of the viewport in pixels
+  once: false,                                 // if true, observer is detroyed after first callback is triggered
+  observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 })
 
 // PositionObserver(options)
 const positionObserver = PositionObserver({
-  onBottom(container, viewport) {},               // callback when the viewport reaches the bottom
-  onTop(container, viewport) {},                  // callback when the viewport reaches the top
-  onLeft(container, viewport) {},                 // callback when the viewport reaches the left
-  onRight(container, viewport) {},                // callback when the viewport reaches the right
-  onMaximized(container, viewport) {},            // callback when the viewport and container are the same size
-  container: document.body,                       // the viewport element to observe the position of
-  offset: 0,                                      // offset from the edges of the viewport in pixels
-  once: false,                                    // if true, observer is detroyed after first callback is triggered
-  observerCollection: new ObserverCollection()    // use different viewport collection for element
+  onBottom(container, viewport) {},            // callback when the viewport reaches the bottom
+  onTop(container, viewport) {},               // callback when the viewport reaches the top
+  onLeft(container, viewport) {},              // callback when the viewport reaches the left
+  onRight(container, viewport) {},             // callback when the viewport reaches the right
+  onMaximized(container, viewport) {},         // callback when the viewport and container are the same size
+  container: document.body,                    // the viewport element to observe the position of
+  offset: 0,                                   // offset from the edges of the viewport in pixels
+  once: false,                                 // if true, observer is detroyed after first callback is triggered
+  observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 })
 ```
 <!-- prettier-ignore-end -->
@@ -69,20 +69,18 @@ positionObserver.activate()
 elementObserver.activate()
 ```
 
-#### Using custom observer collection
+#### Advanced: Using a custom observer collection
 
-If you need to control custom viewport for elements other that the default one, you can create new instance of `ObserverCollection`.
-
-This is useful for cases where you want to have debounced scroll and resize events on `window`.
+If you need to control scroll and resize events (e.g. for custom throttling/debouncing), you can create a new instance of `ObserverCollection`.
 
 ```js
-const debouncedObserverCollection = new ObserverCollection({ handleScrollResize: h => debounce(h, 300) });
+const debouncedObserverCollection = new ObserverCollection({ handleScrollResize: h => debounce(h, 300) })
 
 const elementObserver = ElementObserver(document.getElementById('element1'), {
   observerCollection: debouncedObserverCollection
 })
 
-// Observer collection should be reused to have only one scroll and resize event on `window`
+// The same instance of ObserverCollection should be reused to have only one scroll and resize event
 const elementObserver = ElementObserver(document.getElementById('element2'), {
   observerCollection: debouncedObserverCollection
 })

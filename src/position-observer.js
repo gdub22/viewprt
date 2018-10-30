@@ -1,6 +1,6 @@
-import Observer from './observer'
+import { Observer } from './observer'
 
-export default function PositionObserver(opts = {}) {
+export function PositionObserver(opts = {}) {
   if (!(this instanceof PositionObserver)) return new PositionObserver(...arguments)
 
   this.onTop = opts.onTop

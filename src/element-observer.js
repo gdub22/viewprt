@@ -1,6 +1,6 @@
-import Observer from './observer'
+import { Observer } from './observer'
 
-export default function ElementObserver(element, opts = {}) {
+export function ElementObserver(element, opts = {}) {
   if (!(this instanceof ElementObserver)) return new ElementObserver(...arguments)
 
   this.element = element

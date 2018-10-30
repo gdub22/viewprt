@@ -3,11 +3,36 @@
  * A scrollable container containing multiple observers that
  * are checked each time the viewport is manipulated
  */
-export default function Viewport(container) {
+export function Viewport(container, observerCollection) {
   this.container = container
   this.observers = []
   this.lastX = 0
   this.lastY = 0
+
+  let scheduled = false
+  const _handler = () => {
+    if (!scheduled) {
+      scheduled = true
+      requestAnimationFrame(() => {
+        const { observers } = this
+        const state = this.getState()
+        for (let i = observers.length; i--; ) observers[i].check(state)
+        this.lastX = state.positionX
+        this.lastY = state.positionY
+        scheduled = false
+      })
+    }
+  }
+
+  const customHandleScrollResize = observerCollection.handleScrollResize
+  const handler = (this.handler = customHandleScrollResize ? customHandleScrollResize(_handler) : _handler)
+
+  addEventListener('scroll', handler, true)
+  addEventListener('resize', handler, true)
+  addEventListener('DOMContentLoaded', () => {
+    const mutationObserver = (this.mutationObserver = new MutationObserver(_handler))
+    mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
+  })
 }
 
 Viewport.prototype = {
@@ -36,34 +61,6 @@ Viewport.prototype = {
     else directionY = 'none'
 
     return { width, height, positionX, positionY, directionX, directionY }
-  },
-
-  setup(handleScrollResize) {
-    let scheduled = false
-    const _handler = () => {
-      if (!scheduled) {
-        scheduled = true
-        requestAnimationFrame(() => {
-          const { observers } = this
-          const state = this.getState()
-          for (let i = observers.length; i--; ) observers[i].check(state)
-          this.lastX = state.positionX
-          this.lastY = state.positionY
-          scheduled = false
-        })
-      }
-    }
-    this.originalHandler = _handler
-    this.handler = handleScrollResize ? handleScrollResize(_handler) : _handler
-
-    const { handler, originalHandler } = this
-
-    addEventListener('scroll', handler, true)
-    addEventListener('resize', handler, true)
-    addEventListener('DOMContentLoaded', () => {
-      const mutationObserver = (this.mutationObserver = new MutationObserver(originalHandler))
-      mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
-    })
   },
 
   destroy() {
