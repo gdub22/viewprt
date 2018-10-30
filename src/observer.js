@@ -1,5 +1,11 @@
 import Viewport from './viewport'
 
+export function ObserverCollection(opts = {}) {
+  if (!(this instanceof ObserverCollection)) return new ObserverCollection(...arguments)
+  this.viewports = new Map()
+  this.handleScrollResize = opts.handleScrollResize
+}
+
 /**
  * @class Observer
  * Base class - each type of observer implements these options/methods
@@ -8,17 +14,20 @@ export default function Observer(opts) {
   this.offset = ~~opts.offset || 0
   this.container = opts.container || document.body
   this.once = Boolean(opts.once)
+  this.observerCollection =
+    opts.observerCollection instanceof ObserverCollection ? opts.observerCollection : defaultObserverCollection
   return this.activate()
 }
 
 Observer.prototype = {
   activate() {
     const container = this.container
-    let viewport = viewports.get(container)
+    let viewport = this.observerCollection.viewports.get(container)
 
     if (!viewport) {
       viewport = new Viewport(container)
-      viewports.set(container, viewport)
+      viewport.setup(this.observerCollection.handleScrollResize)
+      this.observerCollection.viewports.set(container, viewport)
     }
 
     const viewportObservers = viewport.observers
@@ -29,7 +38,7 @@ Observer.prototype = {
 
   destroy() {
     const container = this.container
-    const viewport = viewports.get(container)
+    const viewport = this.observerCollection.viewports.get(container)
 
     if (viewport) {
       const viewportObservers = viewport.observers
@@ -37,13 +46,14 @@ Observer.prototype = {
       if (observerIndex > -1) viewportObservers.splice(observerIndex, 1)
       if (!viewportObservers.length) {
         viewport.destroy()
-        viewports.delete(container)
+        this.observerCollection.viewports.delete(container)
       }
     }
   }
 }
 
 // Internally track all viewports so we only have 1 set of event listeners per container
-const viewports = new Map()
+const defaultObserverCollection = new ObserverCollection()
+
 // Expose private variable for tests
-if (process.env.NODE_ENV === 'test') window.__viewports__ = viewports
+if (process.env.NODE_ENV === 'test') window.__viewports__ = defaultObserverCollection.viewports
