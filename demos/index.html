@@ -1,10 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Viewprt</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <h1>
@@ -56,18 +56,18 @@
         <button onclick="elementInBodyObserver.activate()">Activate</button>
       </h3>
     </div>
-    
+
     <div class="dummyContent"></div>
 
     <script>
       // Demo setup: create some dummy content
-      function createDummyEl (text) {
+      function createDummyEl(text) {
         var el = document.createElement('p')
         el.appendChild(document.createTextNode(text))
         return el
       }
 
-      function addDummyContentTo (el) {
+      function addDummyContentTo(el) {
         for (var i = 0; i < 50; i++) {
           el.appendChild(createDummyEl(i))
         }
@@ -95,19 +95,19 @@
       var blue = '#42A5F5'
       var green = '#66BB6A'
 
-      function onBottom (element, viewportState) {
+      function onBottom(element, viewportState) {
         element.style.borderColor = green
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached bottom', element, viewportState)
       }
-      function onTop (element, viewportState) {
+      function onTop(element, viewportState) {
         element.style.borderColor = blue
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached top', element, viewportState)
       }
-      function onLeft (element, viewportState) {
+      function onLeft(element, viewportState) {
         element.style.borderColor = green
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached left', element, viewportState)
       }
-      function onRight (element, viewportState) {
+      function onRight(element, viewportState) {
         element.style.borderColor = blue
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached right', element, viewportState)
       }
