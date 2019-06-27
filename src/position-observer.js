@@ -7,12 +7,13 @@ export function PositionObserver(opts = {}) {
   this.onBottom = opts.onBottom
   this.onLeft = opts.onLeft
   this.onRight = opts.onRight
-  this.onMaximized = opts.onMaximized
+  this.onFit = opts.onFit
 
   this._wasTop = true
   this._wasBottom = false
   this._wasLeft = true
   this._wasRight = false
+  this._wasFit = false
 
   const viewport = Observer.call(this, opts)
   this.check(viewport.getState())
@@ -27,11 +28,12 @@ PositionObserver.prototype.check = function(viewportState) {
     onBottom,
     onLeft,
     onRight,
-    onMaximized,
+    onFit,
     _wasTop,
     _wasBottom,
     _wasLeft,
     _wasRight,
+    _wasFit,
     container,
     offset,
     once
@@ -43,6 +45,7 @@ PositionObserver.prototype.check = function(viewportState) {
   const atBottom = scrollHeight > height && height + positionY + offset >= scrollHeight
   const atLeft = positionX - offset <= 0
   const atRight = scrollWidth > width && width + positionX + offset >= scrollWidth
+  const fits = scrollHeight <= height && scrollWidth <= width
 
   let untriggered = false
 
@@ -50,7 +53,7 @@ PositionObserver.prototype.check = function(viewportState) {
   else if (onTop && !_wasTop && atTop) onTop.call(this, container, viewportState)
   else if (onRight && !_wasRight && atRight) onRight.call(this, container, viewportState)
   else if (onLeft && !_wasLeft && atLeft) onLeft.call(this, container, viewportState)
-  else if (onMaximized && scrollHeight === height) onMaximized.call(this, container, viewportState)
+  else if (onFit && !_wasFit && fits) onFit.call(this, container, viewportState)
   else untriggered = true
 
   if (once && !untriggered) this.destroy()
@@ -59,4 +62,5 @@ PositionObserver.prototype.check = function(viewportState) {
   this._wasBottom = atBottom
   this._wasLeft = atLeft
   this._wasRight = atRight
+  this._wasFit = fits
 }

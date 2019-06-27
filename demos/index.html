@@ -57,6 +57,11 @@
       </h3>
     </div>
 
+    <div id="fitPane">
+      <h3>Combo observers</h3>
+      When this pane enters, another observer is set up to check if it's contents fit without scrolling.
+    </div>
+
     <div class="dummyContent"></div>
 
     <script>
@@ -111,6 +116,10 @@
         element.style.borderColor = blue
         console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Reached right', element, viewportState)
       }
+      function onFit(element, viewportState) {
+        element.style.borderColor = green
+        console.log(element.id ? element.id : element.tagName.toLowerCase(), 'Fits', element, viewportState)
+      }
       function onEnter(element, viewportState) {
         element.style.backgroundColor = green
         console.log('Entered viewport', element, viewportState)
@@ -158,6 +167,16 @@
         container: document.getElementById('horizontalPane'),
         onEnter: onEnter,
         onExit: onExit
+      })
+
+      var fitElementObserver = ElementObserver(document.getElementById('fitPane'), {
+        onEnter(element, viewportState) {
+          onEnter(element, viewportState)
+          var fitPanePosObserver = PositionObserver({
+            container: element,
+            onFit: onFit
+          })
+        }
       })
     </script>
   </body>
