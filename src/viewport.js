@@ -27,7 +27,7 @@ export function Viewport(container, observerCollection) {
   const customHandleScrollResize = observerCollection.handleScrollResize
   const handler = (this.handler = customHandleScrollResize ? customHandleScrollResize(_handler) : _handler)
 
-  const mutationObserverCallback = () => {
+  const createMutationObserver = () => {
     const mutationObserver = (this.mutationObserver = new MutationObserver(_handler))
     mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
   }
@@ -35,11 +35,10 @@ export function Viewport(container, observerCollection) {
   addEventListener('scroll', handler, true)
   addEventListener('resize', handler, true)
 
-  const documentReadyState = document.readyState
-  if (documentReadyState === 'complete' || documentReadyState === 'interactive') {
-    mutationObserverCallback()
+  if (document.readyState !== 'loading') {
+    createMutationObserver()
   } else {
-    addEventListener('DOMContentLoaded', mutationObserverCallback)
+    addEventListener('DOMContentLoaded', createMutationObserver)
   }
 }
 
