@@ -11,7 +11,8 @@ h3 {
 }
 
 #verticalPane,
-#horizontalPane {
+#horizontalPane,
+#fitPane {
   height: 15em;
   padding: 1em;
   margin: 1em 0;

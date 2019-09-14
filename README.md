@@ -37,7 +37,7 @@ const positionObserver = PositionObserver({
   onTop(container, viewport) {},               // callback when the viewport reaches the top
   onLeft(container, viewport) {},              // callback when the viewport reaches the left
   onRight(container, viewport) {},             // callback when the viewport reaches the right
-  onMaximized(container, viewport) {},         // callback when the viewport and container are the same size
+  onFit(container, viewport) {},               // callback when the viewport contents fit within the container without having to scroll
   container: document.body,                    // the viewport element to observe the position of
   offset: 0,                                   // offset from the edges of the viewport in pixels
   once: false,                                 // if true, observer is detroyed after first callback is triggered

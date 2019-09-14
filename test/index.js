@@ -370,7 +370,7 @@ describe('viewprt', () => {
       )
     })
 
-    it('triggers onMaximized but not other callbacks when content and container are same size', async () => {
+    it('triggers onFit but not other callbacks when content fits within container', async () => {
       assert(
         await page.evaluate(pageHeight => {
           const content = document.createElement('div')
@@ -380,7 +380,7 @@ describe('viewprt', () => {
 
           return new Promise(resolve => {
             PositionObserver({
-              onMaximized() {
+              onFit() {
                 resolve(1)
               },
               onTop() {
@@ -398,6 +398,36 @@ describe('viewprt', () => {
             })
             window.scrollTo(0, contentHeight)
             content.style.height = pageHeight + 'px'
+          })
+        }, pageHeight)
+      )
+    })
+
+    it('triggers onFit when content initially fits within container', async () => {
+      assert(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          content.style.height = pageHeight + 'px'
+          document.body.appendChild(content)
+
+          return new Promise(resolve => {
+            PositionObserver({
+              onFit() {
+                resolve(1)
+              },
+              onTop() {
+                resolve(0)
+              },
+              onBottom() {
+                resolve(0)
+              },
+              onLeft() {
+                resolve(0)
+              },
+              onRight() {
+                resolve(0)
+              }
+            })
           })
         }, pageHeight)
       )
