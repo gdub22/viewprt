@@ -1,7 +1,7 @@
 import { Observer } from './observer'
 
 export function PositionObserver(opts = {}) {
-  if (!(this instanceof PositionObserver)) return new PositionObserver(...arguments)
+  if (!(this instanceof PositionObserver)) return new PositionObserver(opts)
 
   this.onTop = opts.onTop
   this.onBottom = opts.onBottom

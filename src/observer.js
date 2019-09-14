@@ -51,7 +51,7 @@ Observer.prototype = {
  * For grouping observers with a custom scroll/resize handler
  */
 export function ObserverCollection(opts = {}) {
-  if (!(this instanceof ObserverCollection)) return new ObserverCollection(...arguments)
+  if (!(this instanceof ObserverCollection)) return new ObserverCollection(opts)
   this.viewports = new Map()
   this.handleScrollResize = opts.handleScrollResize
 }

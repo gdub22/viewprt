@@ -1,7 +1,7 @@
 import { Observer } from './observer'
 
 export function ElementObserver(element, opts = {}) {
-  if (!(this instanceof ElementObserver)) return new ElementObserver(...arguments)
+  if (!(this instanceof ElementObserver)) return new ElementObserver(element, opts)
 
   this.element = element
   this.onEnter = opts.onEnter
