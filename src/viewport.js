@@ -16,10 +16,14 @@ export function Viewport(container, observerCollection) {
       requestAnimationFrame(() => {
         const { observers } = this
         const state = this.getState()
-        for (let i = observers.length; i--; ) observers[i].check(state)
-        this.lastX = state.positionX
-        this.lastY = state.positionY
-        scheduled = false
+
+        try {
+          for (let i = observers.length; i--; ) observers[i].check(state)
+        } finally {
+          this.lastX = state.positionX
+          this.lastY = state.positionY
+          scheduled = false
+        }
       })
     }
   }
