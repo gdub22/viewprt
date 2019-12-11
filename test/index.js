@@ -31,7 +31,7 @@ describe('viewprt', () => {
   })
 
   after(async () => {
-    await browser.close()
+    browser && (await browser.close())
   })
 
   it('loads the umd library and exposes public functions', async () => {
