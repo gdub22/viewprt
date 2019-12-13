@@ -196,7 +196,60 @@ describe('viewprt', () => {
       await testObserverType('ElementObserver')
     })
 
-    it('destroys after trigging with once option', async () => {
+    it('recovers from observer exceptions', async () => {
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+
+          return new Promise(resolve => {
+            PositionObserver({
+              onTop() {
+                setTimeout(() => resolve(true))
+              },
+              onBottom() {
+                throw new Error()
+              }
+            })
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => window.scrollTo(0, 0), 65)
+          })
+        }, pageHeight)
+      )
+
+      await closePage()
+      await createPage()
+
+      assert.ok(
+        await page.evaluate(pageHeight => {
+          const content = document.createElement('div')
+          const contentHeight = pageHeight * 2
+          content.style.height = contentHeight + 'px'
+          document.body.appendChild(content)
+
+          const element = document.createElement('div')
+          element.style.height = '10px'
+          document.body.appendChild(element)
+
+          return new Promise(resolve => {
+            ElementObserver(element, {
+              onEnter() {
+                throw new Error()
+              },
+              onExit() {
+                setTimeout(() => resolve(true))
+              }
+            })
+            window.scrollTo(0, contentHeight)
+            setTimeout(() => window.scrollTo(0, 0), 65)
+          })
+        }, pageHeight)
+      )
+    })
+
+    it('destroys after triggering with once option', async () => {
       assert.ok(
         await page.evaluate(pageHeight => {
           const content = document.createElement('div')

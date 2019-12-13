@@ -49,18 +49,20 @@ PositionObserver.prototype.check = function(viewportState) {
 
   let untriggered = false
 
-  if (onBottom && !_wasBottom && atBottom) onBottom.call(this, container, viewportState)
-  else if (onTop && !_wasTop && atTop) onTop.call(this, container, viewportState)
-  else if (onRight && !_wasRight && atRight) onRight.call(this, container, viewportState)
-  else if (onLeft && !_wasLeft && atLeft) onLeft.call(this, container, viewportState)
-  else if (onFit && !_wasFit && fits) onFit.call(this, container, viewportState)
-  else untriggered = true
+  try {
+    if (onBottom && !_wasBottom && atBottom) onBottom.call(this, container, viewportState)
+    else if (onTop && !_wasTop && atTop) onTop.call(this, container, viewportState)
+    else if (onRight && !_wasRight && atRight) onRight.call(this, container, viewportState)
+    else if (onLeft && !_wasLeft && atLeft) onLeft.call(this, container, viewportState)
+    else if (onFit && !_wasFit && fits) onFit.call(this, container, viewportState)
+    else untriggered = true
 
-  if (once && !untriggered) this.destroy()
-
-  this._wasTop = atTop
-  this._wasBottom = atBottom
-  this._wasLeft = atLeft
-  this._wasRight = atRight
-  this._wasFit = fits
+    if (once && !untriggered) this.destroy()
+  } finally {
+    this._wasTop = atTop
+    this._wasBottom = atBottom
+    this._wasLeft = atLeft
+    this._wasRight = atRight
+    this._wasFit = fits
+  }
 }
