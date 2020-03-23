@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "flt": "^0.22.0",
-    "puppeteer": "^1.20.0",
+    "puppeteer": "^2.1.1",
     "rollup": "^2.1.0",
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-replace": "^2.2.0",
