@@ -15,7 +15,7 @@ export function ElementObserver(element, opts = {}) {
 ElementObserver.prototype = Object.create(Observer.prototype)
 ElementObserver.prototype.constructor = ElementObserver
 
-ElementObserver.prototype.check = function(viewportState) {
+ElementObserver.prototype.check = function (viewportState) {
   const { container, onEnter, onExit, element, offset, once, _didEnter } = this
   if (!isElementInDOM(element)) return this.destroy()
 

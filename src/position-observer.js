@@ -22,7 +22,7 @@ export function PositionObserver(opts = {}) {
 PositionObserver.prototype = Object.create(Observer.prototype)
 PositionObserver.prototype.constructor = PositionObserver
 
-PositionObserver.prototype.check = function(viewportState) {
+PositionObserver.prototype.check = function (viewportState) {
   const {
     onTop,
     onBottom,
