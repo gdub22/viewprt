@@ -74,7 +74,7 @@ elementObserver.activate()
 If you need to control scroll and resize events (e.g. for custom throttling/debouncing), you can create a new instance of `ObserverCollection`.
 
 ```js
-const debouncedObserverCollection = new ObserverCollection({ handleScrollResize: h => debounce(h, 300) })
+const debouncedObserverCollection = new ObserverCollection({ handleScrollResize: (h) => debounce(h, 300) })
 
 const elementObserver = ElementObserver(document.getElementById('element1'), {
   observerCollection: debouncedObserverCollection

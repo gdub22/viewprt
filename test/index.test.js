@@ -54,9 +54,9 @@ describe('viewprt', () => {
   describe('options', () => {
     it('offset option', async () => {
       async function testOption(input, expected) {
-        const posObserver = await page.evaluate(offset => PositionObserver({ offset }), input)
+        const posObserver = await page.evaluate((offset) => PositionObserver({ offset }), input)
         assert.equal(posObserver.offset, expected)
-        const elObserver = await page.evaluate(offset => ElementObserver(null, { offset }), input)
+        const elObserver = await page.evaluate((offset) => ElementObserver(null, { offset }), input)
         assert.equal(elObserver.offset, expected)
       }
 
@@ -70,9 +70,9 @@ describe('viewprt', () => {
 
     it('once option', async () => {
       async function testOption(input, expected) {
-        const posObserver = await page.evaluate(once => PositionObserver({ once }), input)
+        const posObserver = await page.evaluate((once) => PositionObserver({ once }), input)
         assert.equal(posObserver.once, expected)
-        const elObserver = await page.evaluate(once => ElementObserver(null, { once }), input)
+        const elObserver = await page.evaluate((once) => ElementObserver(null, { once }), input)
         assert.equal(elObserver.once, expected)
       }
 
@@ -126,7 +126,7 @@ describe('viewprt', () => {
           reactivatedObserverCount,
           alreadyActivatedViewportCount,
           alreadyActivatedObserverCount
-        ] = await page.evaluate(type => {
+        ] = await page.evaluate((type) => {
           const observer =
             type === 'ElementObserver' ? ElementObserver(document.createElement('div')) : PositionObserver()
           const initialViewportCount = __viewports__.size
@@ -166,7 +166,7 @@ describe('viewprt', () => {
 
     it('reuses the same viewport if containers are the same', async () => {
       async function testObserverType(type) {
-        const [viewportCount, observerCount1, observerCount2] = await page.evaluate(type => {
+        const [viewportCount, observerCount1, observerCount2] = await page.evaluate((type) => {
           const Observer = window[type]
           Observer()
           Observer()
@@ -198,13 +198,13 @@ describe('viewprt', () => {
 
     it('destroys after trigging with once option', async () => {
       assert.ok(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
           document.body.appendChild(content)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               once: true,
               onBottom() {
@@ -220,7 +220,7 @@ describe('viewprt', () => {
       await createPage()
 
       assert.ok(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
@@ -230,7 +230,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
           document.body.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             ElementObserver(element, {
               once: true,
               onEnter() {
@@ -247,13 +247,13 @@ describe('viewprt', () => {
   describe('PositionObserver', () => {
     it('triggers onBottom callback when reaching bottom', async () => {
       assert(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
           document.body.appendChild(content)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onBottom() {
                 resolve(1)
@@ -267,14 +267,14 @@ describe('viewprt', () => {
 
     it('triggers onTop callback when reaching top', async () => {
       assert(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
           document.body.appendChild(content)
           window.scrollTo(0, contentHeight)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onTop() {
                 resolve(1)
@@ -288,14 +288,14 @@ describe('viewprt', () => {
 
     it('triggers onRight callback when reaching right', async () => {
       assert(
-        await page.evaluate(pageWidth => {
+        await page.evaluate((pageWidth) => {
           const content = document.createElement('div')
           const contentWidth = pageWidth * 2
           content.style.height = '1px'
           content.style.width = contentWidth + 'px'
           document.body.appendChild(content)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onRight() {
                 resolve(1)
@@ -309,7 +309,7 @@ describe('viewprt', () => {
 
     it('triggers onLeft callback when reaching left', async () => {
       assert(
-        await page.evaluate(pageWidth => {
+        await page.evaluate((pageWidth) => {
           const content = document.createElement('div')
           const contentWidth = pageWidth * 2
           content.style.height = '1px'
@@ -317,7 +317,7 @@ describe('viewprt', () => {
           document.body.appendChild(content)
           window.scrollTo(contentWidth, 0)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onLeft() {
                 resolve(1)
@@ -331,14 +331,14 @@ describe('viewprt', () => {
 
     it('triggers onBottom callback if created while at bottom', async () => {
       assert(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
           document.body.appendChild(content)
           window.scrollTo(0, contentHeight)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onBottom() {
                 resolve(1)
@@ -351,7 +351,7 @@ describe('viewprt', () => {
 
     it('triggers onRight callback if created while at right', async () => {
       assert(
-        await page.evaluate(pageWidth => {
+        await page.evaluate((pageWidth) => {
           const content = document.createElement('div')
           const contentWidth = pageWidth * 2
           content.style.height = '1px'
@@ -359,7 +359,7 @@ describe('viewprt', () => {
           document.body.appendChild(content)
           window.scrollTo(contentWidth, 0)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onRight() {
                 resolve(1)
@@ -372,13 +372,13 @@ describe('viewprt', () => {
 
     it('triggers onFit but not other callbacks when content fits within container', async () => {
       assert(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
           document.body.appendChild(content)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onFit() {
                 resolve(1)
@@ -405,12 +405,12 @@ describe('viewprt', () => {
 
     it('triggers onFit when content initially fits within container', async () => {
       assert(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           content.style.height = pageHeight + 'px'
           document.body.appendChild(content)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             PositionObserver({
               onFit() {
                 resolve(1)
@@ -443,10 +443,10 @@ describe('viewprt', () => {
             content.style.height = contentHeight + 'px'
             document.body.appendChild(content)
 
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               PositionObserver({
                 observerCollection: new ObserverCollection({
-                  handleScrollResize: h => () =>
+                  handleScrollResize: (h) => () =>
                     setTimeout(() => {
                       h()
                       resolve(timeout)
@@ -467,7 +467,7 @@ describe('viewprt', () => {
   describe('ElementObserver', () => {
     it('triggers onEnter/onExit scrolling up/down', async () => {
       assert.ok(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
@@ -477,7 +477,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
           document.body.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             let entered, exited
             ElementObserver(element, {
               onEnter() {
@@ -498,7 +498,7 @@ describe('viewprt', () => {
 
     it('triggers onEnter/onExit scrolling left/right', async () => {
       assert.ok(
-        await page.evaluate(pageWidth => {
+        await page.evaluate((pageWidth) => {
           const content = document.createElement('div')
           const contentWidth = pageWidth * 2
           content.style.width = contentWidth + 'px'
@@ -509,7 +509,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
           document.body.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             let entered, exited
             ElementObserver(element, {
               onEnter() {
@@ -546,7 +546,7 @@ describe('viewprt', () => {
           element.style.width = '10px'
           container.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             let entered, exited
             ElementObserver(element, {
               container,
@@ -568,7 +568,7 @@ describe('viewprt', () => {
 
     it('triggers on non-window containers when scrolling window', async () => {
       assert.ok(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const spacer = document.createElement('div')
           const spacerHeight = pageHeight * 2
           spacer.style.height = spacerHeight + 'px'
@@ -586,7 +586,7 @@ describe('viewprt', () => {
           element.style.width = containerHeight / 2 + 'px'
           container.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             let entered, exited
             ElementObserver(element, {
               container,
@@ -608,7 +608,7 @@ describe('viewprt', () => {
 
     it('should trigger onEnter multiple times without an onExit callback', async () => {
       assert.ok(
-        await page.evaluate(pageHeight => {
+        await page.evaluate((pageHeight) => {
           const content = document.createElement('div')
           const contentHeight = pageHeight * 2
           content.style.height = contentHeight + 'px'
@@ -618,7 +618,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
           document.body.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             let entered = 0
             ElementObserver(element, {
               onEnter() {
@@ -642,7 +642,7 @@ describe('viewprt', () => {
           element.style.height = '10px'
           document.body.appendChild(element)
 
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             ElementObserver(element, {
               onEnter() {
                 resolve(1)
@@ -654,7 +654,7 @@ describe('viewprt', () => {
     })
 
     it('auto destroys if no longer DOM', async () => {
-      const results = await page.evaluate(pageHeight => {
+      const results = await page.evaluate((pageHeight) => {
         const content = document.createElement('div')
         const contentHeight = pageHeight * 2
         content.style.height = contentHeight + 'px'
@@ -669,7 +669,7 @@ describe('viewprt', () => {
         results.push(__viewports__.size)
         document.body.removeChild(element)
         window.scrollTo(0, contentHeight)
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             results.push(__viewports__.size)
             resolve(results)
@@ -706,10 +706,10 @@ describe('viewprt', () => {
             element.style.height = '10px'
             document.body.appendChild(element)
 
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               ElementObserver(element, {
                 observerCollection: new ObserverCollection({
-                  handleScrollResize: h => () =>
+                  handleScrollResize: (h) => () =>
                     setTimeout(() => {
                       h()
                       resolve(timeout)
