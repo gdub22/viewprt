@@ -55,9 +55,27 @@ describe('viewprt', () => {
     it('offset option', async () => {
       async function testOption(input, expected) {
         const posObserver = await page.evaluate((offset) => PositionObserver({ offset }), input)
-        assert.equal(posObserver.offset, expected)
+        assert.equal(posObserver.offsetX, expected)
+        assert.equal(posObserver.offsetY, expected)
         const elObserver = await page.evaluate((offset) => ElementObserver(null, { offset }), input)
-        assert.equal(elObserver.offset, expected)
+        assert.equal(elObserver.offsetX, expected)
+        assert.equal(elObserver.offsetY, expected)
+      }
+
+      await testOption(undefined, 0)
+      await testOption(null, 0)
+      await testOption(100, 100)
+      await testOption(-100, -100)
+      await testOption('100', 100)
+      await testOption('abc', 0)
+    })
+
+    it('offsetX/Y option', async () => {
+      async function testOption(input, expected) {
+        const posObserver = await page.evaluate((offsetX) => PositionObserver({ offsetX }), input)
+        assert.equal(posObserver.offsetX, expected)
+        const elObserver = await page.evaluate((offsetY) => ElementObserver(null, { offsetY }), input)
+        assert.equal(elObserver.offsetY, expected)
       }
 
       await testOption(undefined, 0)

@@ -5,9 +5,11 @@ import { Viewport } from './viewport'
  * Base class - each type of observer implements these options/methods
  */
 export function Observer(opts) {
-  this.offset = ~~opts.offset || 0
+  const offset = ~~opts.offset || 0
+  this.offsetX = opts.offsetX != null ? ~~opts.offsetX : offset
+  this.offsetY = opts.offsetY != null ? ~~opts.offsetY : offset
   this.container = opts.container || document.body
-  this.once = Boolean(opts.once)
+  this.once = !!opts.once
   this.observerCollection = opts.observerCollection || defaultObserverCollection
   return this.activate()
 }
