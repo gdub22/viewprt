@@ -35,16 +35,17 @@ PositionObserver.prototype.check = function (viewportState) {
     _wasRight,
     _wasFit,
     container,
-    offset,
+    offsetX,
+    offsetY,
     once
   } = this
   const { scrollHeight, scrollWidth } = container
   const { width, height, positionX, positionY } = viewportState
 
-  const atTop = positionY - offset <= 0
-  const atBottom = scrollHeight > height && height + positionY + offset >= scrollHeight
-  const atLeft = positionX - offset <= 0
-  const atRight = scrollWidth > width && width + positionX + offset >= scrollWidth
+  const atTop = positionY - offsetY <= 0
+  const atBottom = scrollHeight > height && height + positionY + offsetY >= scrollHeight
+  const atLeft = positionX - offsetX <= 0
+  const atRight = scrollWidth > width && width + positionX + offsetX >= scrollWidth
   const fits = scrollHeight <= height && scrollWidth <= width
 
   let untriggered = false

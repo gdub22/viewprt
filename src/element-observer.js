@@ -16,10 +16,10 @@ ElementObserver.prototype = Object.create(Observer.prototype)
 ElementObserver.prototype.constructor = ElementObserver
 
 ElementObserver.prototype.check = function (viewportState) {
-  const { container, onEnter, onExit, element, offset, once, _didEnter } = this
+  const { container, onEnter, onExit, element, offsetX, offsetY, once, _didEnter } = this
   if (!isElementInDOM(element)) return this.destroy()
 
-  const inViewport = isElementInViewport(element, offset, viewportState, container)
+  const inViewport = isElementInViewport(element, offsetX, offsetY, viewportState, container)
   if (!_didEnter && inViewport) {
     this._didEnter = true
     if (onEnter) {
@@ -35,7 +35,7 @@ ElementObserver.prototype.check = function (viewportState) {
   }
 }
 
-function isElementInViewport(element, offset, viewportState, container) {
+function isElementInViewport(element, offsetX, offsetY, viewportState, container) {
   const elRect = element.getBoundingClientRect()
 
   if (!elRect.width || !elRect.height) return false
@@ -68,10 +68,10 @@ function isElementInViewport(element, offset, viewportState, container) {
   }
 
   return (
-    elRect.top < topBound + offset &&
-    elRect.bottom > bottomBound - offset &&
-    elRect.left < leftBound + offset &&
-    elRect.right > rightBound - offset
+    elRect.top < topBound + offsetY &&
+    elRect.bottom > bottomBound - offsetY &&
+    elRect.left < leftBound + offsetX &&
+    elRect.right > rightBound - offsetX
   )
 }
 

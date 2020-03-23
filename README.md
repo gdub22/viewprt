@@ -26,7 +26,9 @@ import {
 const elementObserver = ElementObserver(document.getElementById('element'), {
   onEnter(element, viewport) {},               // callback when the element enters the viewport
   onExit(element, viewport) {},                // callback when the element exits the viewport
-  offset: 0,                                   // offset from the edges of the viewport in pixels
+  offset: 0,                                   // offset from all edges of the viewport in pixels
+  offsetX: 0,                                  // offset from the left and right edges of the viewport in pixels
+  offsetY: 0,                                  // offset from the top and bottom edges of the viewport in pixels
   once: false,                                 // if true, observer is detroyed after first callback is triggered
   observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 })
@@ -39,7 +41,9 @@ const positionObserver = PositionObserver({
   onRight(container, viewport) {},             // callback when the viewport reaches the right
   onFit(container, viewport) {},               // callback when the viewport contents fit within the container without having to scroll
   container: document.body,                    // the viewport element to observe the position of
-  offset: 0,                                   // offset from the edges of the viewport in pixels
+  offset: 0,                                   // offset from all edges of the viewport in pixels
+  offsetX: 0,                                  // offset from the left and right edges of the viewport in pixels
+  offsetY: 0,                                  // offset from the top and bottom edges of the viewport in pixels
   once: false,                                 // if true, observer is detroyed after first callback is triggered
   observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 })
