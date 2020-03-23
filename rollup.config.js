@@ -19,7 +19,7 @@ export default [
     output: {
       ...baseConfig.output,
       format: 'umd',
-      file: 'dist/viewprt.umd.js'
+      file: 'dist/umd/viewprt.js'
     }
   },
   {
@@ -27,7 +27,7 @@ export default [
     output: {
       ...baseConfig.output,
       format: 'esm',
-      file: 'dist/viewprt.esm.js'
+      file: 'dist/es/viewprt.js'
     }
   }
 ]
