@@ -53,37 +53,36 @@ describe('viewprt', () => {
 
   describe('options', () => {
     it('offset option', async () => {
-      async function testOption(input, expected) {
-        const posObserver = await page.evaluate((offset) => PositionObserver({ offset }), input)
-        assert.equal(posObserver.offsetX, expected)
-        assert.equal(posObserver.offsetY, expected)
-        const elObserver = await page.evaluate((offset) => ElementObserver(null, { offset }), input)
-        assert.equal(elObserver.offsetX, expected)
-        assert.equal(elObserver.offsetY, expected)
+      async function testOption(options, expected) {
+        const posObserver = await page.evaluate((options) => PositionObserver(options), options)
+        assert.deepEqual(
+          [posObserver.offsetXEnter, posObserver.offsetXExit, posObserver.offsetYEnter, posObserver.offsetYExit],
+          expected
+        )
+        const elObserver = await page.evaluate((options) => ElementObserver(null, options), options)
+        assert.deepEqual(
+          [elObserver.offsetXEnter, elObserver.offsetXExit, elObserver.offsetYEnter, elObserver.offsetYExit],
+          expected
+        )
       }
 
-      await testOption(undefined, 0)
-      await testOption(null, 0)
-      await testOption(100, 100)
-      await testOption(-100, -100)
-      await testOption('100', 100)
-      await testOption('abc', 0)
-    })
+      await testOption({ offset: 100 }, [100, 100, 100, 100])
+      await testOption({ offset: -100 }, [-100, -100, -100, -100])
+      await testOption({ offset: '100' }, [100, 100, 100, 100])
+      await testOption({ offset: 'abc' }, [0, 0, 0, 0])
+      await testOption({ offset: undefined }, [0, 0, 0, 0])
+      await testOption({ offset: null }, [0, 0, 0, 0])
 
-    it('offsetX/Y option', async () => {
-      async function testOption(input, expected) {
-        const posObserver = await page.evaluate((offsetX) => PositionObserver({ offsetX }), input)
-        assert.equal(posObserver.offsetX, expected)
-        const elObserver = await page.evaluate((offsetY) => ElementObserver(null, { offsetY }), input)
-        assert.equal(elObserver.offsetY, expected)
-      }
+      await testOption({ offsetX: 100 }, [100, 100, 0, 0])
+      await testOption({ offsetY: 100 }, [0, 0, 100, 100])
+      await testOption({ offsetX: 100, offsetY: 200 }, [100, 100, 200, 200])
+      await testOption({ offset: 100, offsetY: 200 }, [100, 100, 200, 200])
 
-      await testOption(undefined, 0)
-      await testOption(null, 0)
-      await testOption(100, 100)
-      await testOption(-100, -100)
-      await testOption('100', 100)
-      await testOption('abc', 0)
+      await testOption({ offset: { enter: 100, exit: 200 } }, [100, 200, 100, 200])
+      await testOption({ offsetX: { enter: 100, exit: 200 }, offsetY: { enter: 300, exit: 400 } }, [100, 200, 300, 400])
+      await testOption({ offsetX: { enter: 100, exit: 200 }, offsetY: 500 }, [100, 200, 500, 500])
+      await testOption({ offsetX: { enter: 100, exit: 200 } }, [100, 200, 0, 0])
+      await testOption({ offset: 100, offsetX: { enter: 500 } }, [500, 0, 100, 100])
     })
 
     it('once option', async () => {

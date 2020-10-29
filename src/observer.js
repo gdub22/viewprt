@@ -5,9 +5,17 @@ import { Viewport } from './viewport'
  * Base class - each type of observer implements these options/methods
  */
 export function Observer(opts) {
-  const offset = ~~opts.offset || 0
-  this.offsetX = opts.offsetX != null ? ~~opts.offsetX : offset
-  this.offsetY = opts.offsetY != null ? ~~opts.offsetY : offset
+  const { offset, offsetX, offsetY } = opts
+  const offsetIsObject = isObject(offset)
+  const offsetXIsObject = isObject(offsetX)
+  const offsetYIsObject = isObject(offsetY)
+  const offsetEnter = ~~(offsetIsObject ? offset.enter : offset) || 0
+  const offsetExit = ~~(offsetIsObject ? offset.exit : offset) || 0
+  this.offsetXEnter = offsetX == null ? offsetEnter : ~~(offsetXIsObject ? offsetX.enter : offsetX)
+  this.offsetXExit = offsetX == null ? offsetExit : ~~(offsetXIsObject ? offsetX.exit : offsetX)
+  this.offsetYEnter = offsetY == null ? offsetEnter : ~~(offsetYIsObject ? offsetY.enter : offsetY)
+  this.offsetYExit = offsetY == null ? offsetExit : ~~(offsetYIsObject ? offsetY.exit : offsetY)
+
   this.container = opts.container || document.body
   this.once = !!opts.once
   this.observerCollection = opts.observerCollection || defaultObserverCollection
@@ -46,6 +54,10 @@ Observer.prototype = {
       }
     }
   }
+}
+
+function isObject(input) {
+  return input != null && typeof input === 'object'
 }
 
 /**
