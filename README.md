@@ -57,7 +57,7 @@ The `viewport` argument in callbacks is an object containing the current state o
   width: 1024,
   height: 768,
   positionX: 0,
-  positionY: 2000
+  positionY: 2000,
   directionY: "down",
   directionX: "none"
 }
