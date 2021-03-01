@@ -1,6 +1,6 @@
 {
   "name": "viewprt",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "A tiny, dependency-free, high performance viewport position & intersection observation tool",
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
