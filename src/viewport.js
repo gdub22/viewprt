@@ -32,8 +32,9 @@ export function Viewport(container, observerCollection) {
     mutationObserver.observe(document, { attributes: true, childList: true, subtree: true })
   }
 
-  addEventListener('scroll', handler, true)
-  addEventListener('resize', handler, true)
+  const listenerOpts = { capture: true, passive: true }
+  addEventListener('scroll', handler, listenerOpts)
+  addEventListener('resize', handler, listenerOpts)
 
   if (document.readyState !== 'loading') {
     createMutationObserver()
