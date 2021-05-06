@@ -5,7 +5,14 @@
   "author": "Garth Poitras <garth22@gmail.com>",
   "license": "MIT",
   "main": "dist/umd/viewprt.js",
-  "module": "dist/es/viewprt.js",
+  "module": "dist/es/viewprt.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/es/viewprt.mjs",
+      "require": "./dist/umd/viewprt.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist"
   ],

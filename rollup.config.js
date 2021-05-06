@@ -27,7 +27,7 @@ export default [
     output: {
       ...baseConfig.output,
       format: 'esm',
-      file: 'dist/es/viewprt.js'
+      file: 'dist/es/viewprt.mjs'
     }
   }
 ]
